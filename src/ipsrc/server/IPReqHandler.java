@@ -12,14 +12,14 @@ public class IPReqHandler extends Thread{
 
     private Socket _socket = null;
     private byte[] _buf = null;
-    private Hashtable<String, HashSet<String> > _followSet = null;
+    private Hashtable<String, HashSet<String> > _followMap = null;
     private Hashtable<String, IPLiveUser> _socketMap = null; 
 
     public IPReqHandler(Socket socket, 
-                        Hashtable<String, HashSet<String> >followSet, 
+                        Hashtable<String, HashSet<String> >followMap, 
                         Hashtable<String, IPLiveUser> socketMap){
         this._socket = socket;
-        this._followSet = followSet;
+        this._followMap = followMap;
         this._socketMap = socketMap;
         this._buf = new byte[BUF_LEN];
     }    
@@ -30,7 +30,7 @@ public class IPReqHandler extends Thread{
         if(null != _socketMap.get(data)){
             lu = _socketMap.get(data);
             if(lu.getSocket() == _socket){
-                return Protocol.SUB_ALREADY;
+                return Protocol.LISTEN_ALREADY;
             }
             else{
                 lu.setSocket(_socket);
@@ -44,6 +44,63 @@ public class IPReqHandler extends Thread{
             _socketMap.put(data, lu);
             return Protocol.SUCCESS;
         }
+    }
+
+    private String processSub(String msg){
+        String data = msg.substring(Protocol.HEAVY_SUB_PREFIX.length());
+        int splitIndex = data.indexOf("/");
+        String sub = data.substring(0, splitIndex);
+        String pub = data.substring(splitIndex + 1, data.length());
+
+        Hashset<String> subSet = _followMap.get(pub);
+        if(null == subSet){
+            subSet = new Hashset<String>();
+            _followMap.put(pub, subSet);
+        }
+        if(subSet.contains(sub)){
+            return Protocol.SUB_ALREADY;
+        }
+        subSet.add(sub); 
+        return Protocol.SUCCESS; 
+
+    }
+
+    private String processUnsub(String msg){
+        String data = msg.substring(Protocol.HEAVY_UNSUB_PREFIX.length());
+        int splitIndex = data.indexOf("/");
+        String sub = data.substring(0, splitIndex);
+        String pub = data.substring(splitIndex + 1, data.length());
+
+        Hashset<String> subSet = _followMap.get(pub);
+        if(null == subSet){
+            return Protocl.PUB_NOT_EXIST;
+        }        
+        else if(subSet.contains(sub)){
+            //do unsubscribe
+            subSet.remove(sub);
+            return Protocol.SUCCESS;
+        }
+        else{
+            return Protocol.SUB_NOT_EXIST;
+        }
+    }
+
+    // need to share some outgoing class to make it a bottleneck
+    private synchronized String processPost(String msg){
+        String data = msg.substring(Protocol.HEAVY_POST_PREFIX.length());
+        int splitIndex = data.indexOf("/");
+        String pub = data.substring(0, splitIndex);
+        String postMsg = data.substring(splitIndex + 1, data.length());
+
+        Hashset<String> subSet = _followMap.get(pub);
+        if(null == subSet){
+            subSet = new Hashset<String>();
+            _followMap.put(pub, subSet);
+            return SUCCESS;
+        }
+        //TODO: logic not complete
+        
+        return null;
     }
 
     public void run(){
