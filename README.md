@@ -1,4 +1,4 @@
 ndnrp
 =====
 
-A demo shows the realtime server push with Hermes
+Sadly, ccnps deviates from the requirement. I will start over again.
