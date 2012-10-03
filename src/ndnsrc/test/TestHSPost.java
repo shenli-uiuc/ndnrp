@@ -1,7 +1,7 @@
-package ccnps.test;
+package ndnrp.ndnsrc.test;
 
-import ccnps.sub.*;
-import ccnps.util.*;
+import ndnrp.ndnsrc.sub.*;
+import ndnrp.util.*;
 
 import org.ccnx.ccn.CCNHandle;
 

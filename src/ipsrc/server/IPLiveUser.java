@@ -6,7 +6,7 @@ public class IPLiveUser{
     private String _name = null;
     private Socket _socket = null;
 
-    public LiveUser(String name, Socket socket){
+    public IPLiveUser(String name, Socket socket){
         this._name = name;
         this._socket = socket;
     }
@@ -17,5 +17,9 @@ public class IPLiveUser{
 
     public Socket getSocket(){
         return _socket;
+    }
+
+    public void setSocket(Socket socket){
+        _socket = socket;
     }
 }

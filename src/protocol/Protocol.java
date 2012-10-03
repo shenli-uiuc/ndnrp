@@ -11,7 +11,7 @@ public class Protocol{
     public static final String HEAVY_POST_PREFIX = "ccnx:/ndnrp/heavy/post/";
     public static final String HEAVY_PUB_PREFIX = "ccnx:/ndnrp/heavy/pub/";
     public static final String HEAVY_SUB_PREFIX = "ccnx:/ndnrp/heavy/sub/";
-    public static final String HEAVY_UNSUB_PREFIX = "ccnx:/ndnrp/heavy/unsub/"
+    public static final String HEAVY_UNSUB_PREFIX = "ccnx:/ndnrp/heavy/unsub/";
     public static final String HEAVY_LISTEN_PREFIX = "ccnx:/ndnrp/heavy/listen/";
     public static final String HEAVY_PREFIX = "ccnx:/ndnrp/heavy/";
 

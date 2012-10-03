@@ -1,7 +1,7 @@
-package ccnps.pub;
+package ndnrp.ndnsrc.pub;
 
-import ccnps.protocol.*;
-import ccnps.util.*;
+import ndnrp.protocol.*;
+import ndnrp.util.*;
 
 import java.util.*;
 import java.lang.*;

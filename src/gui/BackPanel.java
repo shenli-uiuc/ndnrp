@@ -1,4 +1,4 @@
-package ccnps.gui;
+package ndnrp.gui;
 
 import javax.swing.*;
 import java.awt.*;

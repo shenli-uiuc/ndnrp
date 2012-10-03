@@ -1,7 +1,7 @@
-package ccnps.sub;
+package ndnrp.ndnsrc.sub;
 
-import ccnps.util.*;
-import ccnps.protocol.*;
+import ndnrp.util.*;
+import ndnrp.protocol.*;
 
 import java.util.*;
 import java.sql.Timestamp;

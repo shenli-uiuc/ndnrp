@@ -1,0 +1,50 @@
+<?xml version="1.0"?>
+<project name = "ccnps" default="all" basedir="../">
+    <path id="libs">
+        <fileset dir="lib/">
+            <include name="*.jar"/>
+        </fileset>
+    </path>
+
+    <target name = "clean">
+        <delete dir="build/"/>
+        <mkdir dir="build/"/>
+    </target>
+    
+    <target name = "ndnrp_util" depends = "clean">
+        <javac srcdir="src/util/" destdir="build/" classpathref="libs" includeantruntime="false"/>
+    </target>
+
+    <target name = "ndnrp_protocol" depends = "ndnrp_util">
+        <javac srcdir="src/protocol" destdir="build/" classpathref="libs" includeantruntime="false"/>
+    </target>
+
+    <target name = "ndnrp_ndn_pub" depends = "ndnrp_util, ndnrp_protocol">
+        <javac srcdir="src/ndnsrc/pub" destdir="build/" classpathref="libs" includeantruntime="false"/>
+    </target>
+
+    <target name = "ndnrp_ndn_sub" depends = "ndnrp_util, ndnrp_protocol">
+        <javac srcdir="src/ndnsrc/sub" destdir="build/" classpathref="libs" includeantruntime="false"/>
+    </target>
+
+    <target name = "ndnrp_ndn_test" depends = "ndnrp_ndn_sub, ndnrp_ndn_pub, ndnrp_util">
+        <javac srcdir="src/ndnsrc/test" destdir="build/" classpathref="libs" includeantruntime="false"/>
+    </target>
+
+    <target name = "ndnrp_ip_server" depends = "ndnrp_util, ndnrp_protocol">
+        <javac srcdir="src/ipsrc/server" destdir="build/" classpathref="libs" includeantruntime="false"/>
+    </target>
+    
+    <target name = "ndnrp_ip_client" depends = "ndnrp_util, ndnrp_protocol">
+        <javac srcdir="src/ipsrc/client" destdir="build/" classpathref="libs" includeantruntime="false"/>
+    </target>
+
+    <target name = "ndnrp_gui" depends = "ndnrp_ndn_sub, ndnrp_ndn_pub, ndnrp_ndn_test, ndnrp_ip_server, ndnrp_ip_client">
+        <javac srcdir="src/gui" destdir="build/" classpathref="libs" includeantruntime="false"/>
+    </target>
+
+    <target name = "all" depends="clean, ndnrp_gui">
+    </target>
+
+    
+</project>

@@ -1,38 +1,50 @@
 package ndnrp.ipsrc.server;
 
-import ndnrp.protocol;
+import ndnrp.protocol.*;
+import ndnrp.util.*;
 
 import java.net.*;
 import java.io.*;
+import java.util.*;
 
 public class IPServer{
 
     private String _url = null;
     private int _port = 0;    
+    private Hashtable<String, HashSet<String> > _followMap = null;
+    private Hashtable<String, IPLiveUser> _userMap = null;
 
     public IPServer(String url, int port){
         this._url = url;
         this._port = port;
+        this._followMap = new Hashtable<String, HashSet<String> >();
+        this._userMap = new Hashtable<String, IPLiveUser>();
     }
 
     public void start(){
-        ServerSocket ss = new ServerSocket();
+        ServerSocket ss = null;
         InetSocketAddress addr = new InetSocketAddress(_url, _port);
         Socket socket = null;
 
-        ss.bind(addr);
+        try{
+            ss = new ServerSocket();
+            ss.bind(addr);
 
-        if(ss.isBound()){
-            while(true){
-                socket = server.accept();
-                System.out.println("Got one connection");
-                IPReqHandler rh = new IPReqHandler(socket);
-                rh.start();
+            if(ss.isBound()){
+                while(true){
+                    socket = ss.accept();
+                    System.out.println("Got one connection");
+                    IPReqHandler rh = new IPReqHandler(socket, _followMap, _userMap);
+                    rh.start();
+                }
+            }
+            else{
+                System.out.println("Server socket binding failed!");
+                return;
             }
         }
-        else{
-            System.out.println("Server socket binding failed!");
-            return;
+        catch(IOException ex){
+            ex.printStackTrace();
         }
     }
 

@@ -13,35 +13,44 @@ public class IPReqHandler extends Thread{
     private Socket _socket = null;
     private byte[] _buf = null;
     private Hashtable<String, HashSet<String> > _followMap = null;
-    private Hashtable<String, IPLiveUser> _socketMap = null; 
+    private Hashtable<String, IPLiveUser> _userMap = null; 
 
     public IPReqHandler(Socket socket, 
                         Hashtable<String, HashSet<String> >followMap, 
-                        Hashtable<String, IPLiveUser> socketMap){
+                        Hashtable<String, IPLiveUser> userMap){
         this._socket = socket;
         this._followMap = followMap;
-        this._socketMap = socketMap;
+        this._userMap = userMap;
         this._buf = new byte[BUF_LEN];
     }    
 
     private String processListen(String msg){
         String data = msg.substring(Protocol.HEAVY_LISTEN_PREFIX.length());
         IPLiveUser lu = null;
-        if(null != _socketMap.get(data)){
-            lu = _socketMap.get(data);
+        if(null != _userMap.get(data)){
+            lu = _userMap.get(data);
             if(lu.getSocket() == _socket){
                 return Protocol.LISTEN_ALREADY;
             }
             else{
+                if(!lu.getSocket().isClosed()){
+                    try{
+                        lu.getSocket().close();
+                    }
+                    catch(IOException ex){
+                        ex.printStackTrace();
+                    }
+                }
                 lu.setSocket(_socket);
                 //I only keep the socket, the server push is on-demand
+                //TODO: close the old socket
                 return Protocol.SUB_SOCK_UPDATE;
             }
         }
         else{
             //create a not IPLiveUser
             lu = new IPLiveUser(data, _socket);
-            _socketMap.put(data, lu);
+            _userMap.put(data, lu);
             return Protocol.SUCCESS;
         }
     }
@@ -52,9 +61,9 @@ public class IPReqHandler extends Thread{
         String sub = data.substring(0, splitIndex);
         String pub = data.substring(splitIndex + 1, data.length());
 
-        Hashset<String> subSet = _followMap.get(pub);
+        HashSet<String> subSet = _followMap.get(pub);
         if(null == subSet){
-            subSet = new Hashset<String>();
+            subSet = new HashSet<String>();
             _followMap.put(pub, subSet);
         }
         if(subSet.contains(sub)){
@@ -71,9 +80,9 @@ public class IPReqHandler extends Thread{
         String sub = data.substring(0, splitIndex);
         String pub = data.substring(splitIndex + 1, data.length());
 
-        Hashset<String> subSet = _followMap.get(pub);
+        HashSet<String> subSet = _followMap.get(pub);
         if(null == subSet){
-            return Protocl.PUB_NOT_EXIST;
+            return Protocol.PUB_NOT_EXIST;
         }        
         else if(subSet.contains(sub)){
             //do unsubscribe
@@ -92,32 +101,49 @@ public class IPReqHandler extends Thread{
         String pub = data.substring(0, splitIndex);
         String postMsg = data.substring(splitIndex + 1, data.length());
 
-        Hashset<String> subSet = _followMap.get(pub);
+        HashSet<String> subSet = _followMap.get(pub);
         if(null == subSet){
-            subSet = new Hashset<String>();
+            subSet = new HashSet<String>();
             _followMap.put(pub, subSet);
-            return SUCCESS;
+            return Protocol.SUCCESS;
         }
-        //TODO: logic not complete
-        
-        return null;
+        else{
+            Iterator it = subSet.iterator();
+            String outMsg = pub + ": " + postMsg;
+            String sub = null;
+            Socket socket = null;
+            while(it.hasNext()){
+                sub = (String)it.next();
+                socket = (Socket)_userMap.get(sub).getSocket();
+                IPMsgSender.send(socket, outMsg); 
+            }
+            return Protocol.SUCCESS;
+        }
     }
 
     public void run(){
-        InputStream in = _socket.getInputStream();      
+        InputStream in = null;
         int cnt = 0, off = 0;
-        cnt = in.read(buf, 0, BUF_LEN);
-        off += cnt;
-        while(cnt > 0 && off < BUF_LEN){
-            cnt = in.read(buf, off, BUF_LEN - off);
+
+        try{
+            in = _socket.getInputStream();
+            cnt = in.read(_buf, 0, BUF_LEN);
             off += cnt;
-        }  
+            while(cnt > 0 && off < BUF_LEN){
+                cnt = in.read(_buf, off, BUF_LEN - off);
+                off += cnt;
+            }  
+        }
+        catch(IOException ex){
+            ex.printStackTrace();
+            return;
+        }
         if(off >= BUF_LEN){
             System.out.println("The buffer is not large enough!");
             return;
         }
 
-        String msg = new String(buf);
+        String msg = new String(_buf);
         String res = null;
         if(msg.substring(0, Protocol.HEAVY_POST_PREFIX.length()).equals(Protocol.HEAVY_POST_PREFIX)){
             //someone is posting a new tweet
@@ -126,6 +152,9 @@ public class IPReqHandler extends Thread{
         else if(msg.substring(0, Protocol.HEAVY_SUB_PREFIX.length()).equals(Protocol.HEAVY_SUB_PREFIX)){
             //someone is subscribing to a publisher
             res = processSub(msg);
+        }
+        else if(msg.substring(0, Protocol.HEAVY_UNSUB_PREFIX.length()).equals(Protocol.HEAVY_UNSUB_PREFIX)){
+            res = processUnsub(msg);
         }
         else if(msg.substring(0, Protocol.HEAVY_LISTEN_PREFIX.length()).equals(Protocol.HEAVY_SUB_PREFIX)){
             res = processListen(msg);

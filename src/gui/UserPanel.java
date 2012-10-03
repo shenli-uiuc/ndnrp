@@ -1,9 +1,9 @@
-package ccnps.gui;
+package ndnrp.gui;
 
-import ccnps.sub.*;
-import ccnps.pub.*;
-import ccnps.protocol.*;
-import ccnps.util.*;
+import ndnrp.ndnsrc.sub.*;
+import ndnrp.ndnsrc.pub.*;
+import ndnrp.protocol.*;
+import ndnrp.util.*;
 
 import javax.swing.*;
 import javax.swing.table.*;
