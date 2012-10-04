@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<project name = "ccnps" default="all" basedir="../">
+<project name = "ndnrp" default="all" basedir="../">
     <path id="libs">
         <fileset dir="lib/">
             <include name="*.jar"/>
@@ -39,11 +39,15 @@
         <javac srcdir="src/ipsrc/client" destdir="build/" classpathref="libs" includeantruntime="false"/>
     </target>
 
-    <target name = "ndnrp_gui" depends = "ndnrp_ndn_sub, ndnrp_ndn_pub, ndnrp_ndn_test, ndnrp_ip_server, ndnrp_ip_client">
+    <target name = "ndnrp_gui" depends = "ndnrp_ndn_sub, ndnrp_ndn_pub, ndnrp_ip_server, ndnrp_ip_client">
         <javac srcdir="src/gui" destdir="build/" classpathref="libs" includeantruntime="false"/>
     </target>
 
-    <target name = "all" depends="clean, ndnrp_gui">
+    <target name = "ndnrp_ip_test" depends = "ndnrp_ip_server, ndnrp_ip_client, ndnrp_protocol, ndnrp_util">
+        <javac srcdir="src/ipsrc/test" destdir="build/" classpathref="libs" includeantruntime="false"/>
+    </target>
+
+    <target name = "all" depends="clean, ndnrp_gui, ndnrp_ndn_test, ndnrp_ip_test">
     </target>
 
     

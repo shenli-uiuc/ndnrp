@@ -31,6 +31,7 @@ public class IPServer{
             ss.bind(addr);
 
             if(ss.isBound()){
+                System.out.println("IPServer running");
                 while(true){
                     socket = ss.accept();
                     System.out.println("Got one connection");

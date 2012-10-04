@@ -8,21 +8,27 @@ import java.io.*;
 import java.util.*;
 
 public class IPClient{
-    public static final int PUBLISHER = 1 << 0;
-    public static final int SUBSCRIBER = 1 << 1;
+    public static final int PUBLISHER = 1;
+    public static final int SUBSCRIBER = 2;
     public static final int BUF_LEN = 1024;
 
+    private String _ip = null;
+    private int _port = 0;
+    private int _type = 0;
     private String _name = null;
     private HashSet<String> _subSet = null;
     private Socket _socket = null;
 
     private byte[] _buf = null;
 
-    public IPClient(String name, int type){
+    public IPClient(String ip, int port, String name, int type){
+        this._ip = ip;
+        this._port = port;
+        this._type = type;
         this._name = name;
         this._subSet = new HashSet<String>();
         this._buf = new byte[BUF_LEN];
-        if(type | SUBSCRIBER){
+        if((type & SUBSCRIBER) > 0){
             this._socket = getSocket();
         }
     }    
@@ -33,7 +39,8 @@ public class IPClient{
                 return _socket;
             }
             else{
-                return new Socket(Protocol.SERVER_IP, Protocol.SERVER_PORT);
+                System.out.println("Creating new socket");
+                return new Socket(_ip, _port);
             }
         }
         catch(UnknownHostException ex){
@@ -42,7 +49,7 @@ public class IPClient{
         catch(IOException ex){
             ex.printStackTrace();
         }
-        catch()
+        return null;
     }
 
     public void subscribe(String pubName){
@@ -94,7 +101,14 @@ public class IPClient{
                 _socket = getSocket();
             }
             InputStream in = _socket.getInputStream();
-            
+            int cnt = 0;
+
+            cnt = in.read(_buf, 0, BUF_LEN);            
+            if(cnt >= BUF_LEN){
+                System.out.println("In IPClient.listen: _buf overflow");
+                return null;
+            }
+            return new String(_buf, 0, cnt);
         }
         catch(IOException ex){
             ex.printStackTrace();
@@ -108,8 +122,13 @@ public class IPClient{
         String postMsg = Protocol.HEAVY_POST_PREFIX + _name + "/" + msg;
         send(socket, postMsg);
         if(socket != _socket){
-            out.close();
-            socket.close();
+            try{
+                socket.close();
+                System.out.println("Socket closed");
+            }
+            catch(IOException ex){
+                ex.printStackTrace();
+            }
             socket = null;
         }
     }
