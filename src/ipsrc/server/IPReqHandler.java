@@ -36,6 +36,7 @@ public class IPReqHandler extends Thread{
             else{
                 if(!lu.getSocket().isClosed()){
                     try{
+                        lu.getHandler().stop();
                         lu.getSocket().close();
                     }
                     catch(IOException ex){
@@ -43,6 +44,9 @@ public class IPReqHandler extends Thread{
                     }
                 }
                 lu.setSocket(_socket);
+                IPSubHandler thread = new IPSubHandler(_socket, _followMap);
+                lu.setHandler(thread);
+                thread.start();
                 //I only keep the socket, the server push is on-demand
                 //TODO: close the old socket
                 return Protocol.SUB_SOCK_UPDATE;
@@ -50,7 +54,9 @@ public class IPReqHandler extends Thread{
         }
         else{
             //create a not IPLiveUser
-            lu = new IPLiveUser(data, _socket);
+            IPSubHandler thread = new IPSubHandler(_socket, _followMap);
+            thread.start();
+            lu = new IPLiveUser(data, _socket, thread);
             _userMap.put(data, lu);
             return Protocol.SUCCESS;
         }
@@ -138,15 +144,6 @@ public class IPReqHandler extends Thread{
                 //someone is posting a new tweet
                 System.out.println("Got Post: " + msg);
                 res = processPost(msg); 
-            }
-            else if(msg.substring(0, Protocol.HEAVY_SUB_PREFIX.length()).equals(Protocol.HEAVY_SUB_PREFIX)){
-                //someone is subscribing to a publisher
-                System.out.println("Got Sub: " + msg);
-                res = processSub(msg);
-            }
-            else if(msg.substring(0, Protocol.HEAVY_UNSUB_PREFIX.length()).equals(Protocol.HEAVY_UNSUB_PREFIX)){
-                System.out.println("Got unSub: " + msg);
-                res = processUnsub(msg);
             }
             else if(msg.substring(0, Protocol.HEAVY_LISTEN_PREFIX.length()).equals(Protocol.HEAVY_SUB_PREFIX)){
                 System.out.println("Got listen: " + msg);
