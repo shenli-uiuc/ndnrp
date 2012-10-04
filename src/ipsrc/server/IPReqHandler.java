@@ -24,6 +24,7 @@ public class IPReqHandler extends Thread{
         this._buf = new byte[BUF_LEN];
     }    
 
+    //TODO: the processListen method need to invoke the IPSubHandler thread
     private String processListen(String msg){
         String data = msg.substring(Protocol.HEAVY_LISTEN_PREFIX.length());
         IPLiveUser lu = null;
@@ -53,27 +54,6 @@ public class IPReqHandler extends Thread{
             _userMap.put(data, lu);
             return Protocol.SUCCESS;
         }
-    }
-
-    private synchronized String processSub(String msg){
-        String data = msg.substring(Protocol.HEAVY_SUB_PREFIX.length());
-        int splitIndex = data.indexOf("/");
-        String sub = data.substring(0, splitIndex);
-        String pub = data.substring(splitIndex + 1, data.length());
-
-        System.out.println("Subscribing : " + sub + ", " + pub);
-
-        HashSet<String> subSet = _followMap.get(pub);
-        if(null == subSet){
-            subSet = new HashSet<String>();
-            _followMap.put(pub, subSet);
-        }
-        if(subSet.contains(sub)){
-            return Protocol.SUB_ALREADY;
-        }
-        subSet.add(sub); 
-        return Protocol.SUCCESS; 
-
     }
 
     private String processUnsub(String msg){
