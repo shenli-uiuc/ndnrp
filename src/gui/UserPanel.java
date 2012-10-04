@@ -2,6 +2,8 @@ package ndnrp.gui;
 
 import ndnrp.ndnsrc.sub.*;
 import ndnrp.ndnsrc.pub.*;
+import ndnrp.ipsrc.client.*;
+import ndnrp.ipsrc.server.*;
 import ndnrp.protocol.*;
 import ndnrp.util.*;
 
@@ -38,7 +40,9 @@ public class UserPanel extends JPanel{
     public static final int TABLE_COL_NUM = 1;
 
     private CCNHandle _lsHandle = null;
-    private CCNHandle _hsHandle = null;
+    //private CCNHandle _hsHandle = null;
+    private String _ip = null;
+    private int _port = 0;
 
     private JScrollPane _lsJScroll = null;
     private JScrollPane _hsJScroll = null;
@@ -67,15 +71,17 @@ public class UserPanel extends JPanel{
     private int _curFolloweeCnt = 0;
 
     private LSSubscriber _lsSub = null;
-    private HSSubscriber _hsSub = null;
+    private IPClient _ipSub = null;
 
     private LSRecThread _lsRec = null;
-    private HSRecThread _hsRec = null;
+    private IPRecThread _ipRec = null;
 
-    public UserPanel(){
+    public UserPanel(String ip, int port){
+        this._ip = ip;
+        this._port = port;
         try{
             _lsHandle = CCNHandle.open();
-            _hsHandle = CCNHandle.open();
+            //_hsHandle = CCNHandle.open();
         }
         catch(ConfigurationException ex){
             ex.printStackTrace();
@@ -213,13 +219,14 @@ public class UserPanel extends JPanel{
                         "The followee name connat be empty", "Info", JOptionPane.INFORMATION_MESSAGE);
                 return;
             }
-            else if(null == _lsSub || null == _hsSub){
+            else if(null == _lsSub || null == _ipSub){
                 JOptionPane.showMessageDialog(null,
                         "The follower has not started yet", "Info", JOptionPane.INFORMATION_MESSAGE);
                 return;
             }
             _lsSub.subscribe(followee);
-            _hsSub.subscribe(followee);
+            //TODO: make _ipSub.subscribe a thread, it cannot be blocking here
+            _ipSub.subscribe(followee);
             addFollowee(followee);
         }
     }
@@ -233,12 +240,13 @@ public class UserPanel extends JPanel{
                 return;
             }
             _lsSub = new LSSubscriber(name, _lsHandle);
-            _hsSub = new HSSubscriber(name, _hsHandle);
+            _ipSub = new IPClient(_ip, _port, name, 
+                                    (IPClient.SUBSCRIBER | IPClient.PUBLISHER));
             _lsRec = new LSRecThread();
-            _hsRec = new HSRecThread();
+            _ipRec = new IPRecThread();
 
             _lsRec.start();
-            _hsRec.start();
+            _ipRec.start();
         }
     }
 
@@ -250,13 +258,14 @@ public class UserPanel extends JPanel{
                         "The message connat be empty", "Info", JOptionPane.INFORMATION_MESSAGE);
                 return;
             }
-            else if(null == _lsSub || null == _hsSub){
+            else if(null == _lsSub || null == _ipSub){
                 JOptionPane.showMessageDialog(null,
                         "The follower has not started yet", "Info", JOptionPane.INFORMATION_MESSAGE);
                 return;
             }
             _lsSub.post(msg);
-            _hsSub.post(msg);
+            //TODO: also make _ipSub.post(msg) a thread. It cannot be blocking
+            _ipSub.post(msg);
         }
     }
 
@@ -270,11 +279,11 @@ public class UserPanel extends JPanel{
         }
     }
 
-    class HSRecThread extends Thread{
+    class IPRecThread extends Thread{
         public void run(){
             String msg = null;
             while(true){
-                msg = _hsSub.receive();
+                msg = _ipSub.receive();
                 _hsJTextArea.append(msg + "\n");
             }
         }
@@ -283,7 +292,7 @@ public class UserPanel extends JPanel{
     public static void main(String args[]){
         JFrame jf = new JFrame();
         jf.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        UserPanel up = new UserPanel();
+        UserPanel up = new UserPanel(Protocol.SERVER_IP, Protocol.SERVER_PORT);
         jf.add(up);
         jf.setSize(up.WIDTH, up.HEIGHT);
         jf.setResizable(false);

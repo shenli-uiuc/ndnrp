@@ -137,15 +137,12 @@ public class IPReqHandler extends Thread{
         try{
             String msg = new String(_buf, 0, cnt, Protocol.ENCODING);
             String res = null;
-            System.out.println(msg);
-            System.out.println(msg.substring(0, 23) + ", " +Protocol.HEAVY_POST_PREFIX.length());
-            System.out.println(Protocol.HEAVY_POST_PREFIX);
             if(msg.substring(0, Protocol.HEAVY_POST_PREFIX.length()).equals(Protocol.HEAVY_POST_PREFIX)){
                 //someone is posting a new tweet
                 System.out.println("Got Post: " + msg);
                 res = processPost(msg); 
             }
-            else if(msg.substring(0, Protocol.HEAVY_LISTEN_PREFIX.length()).equals(Protocol.HEAVY_SUB_PREFIX)){
+            else if(msg.substring(0, Protocol.HEAVY_LISTEN_PREFIX.length()).equals(Protocol.HEAVY_LISTEN_PREFIX)){
                 System.out.println("Got listen: " + msg);
                 res = processListen(msg);
             }

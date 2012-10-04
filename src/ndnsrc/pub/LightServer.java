@@ -96,14 +96,11 @@ public class LightServer implements CCNFilterListener{
         try{
             _writer.addOutstandingInterest(interest);
             if(null != msgItem)
-                _writer.put(interest.name(), Protocol.SUCCESS, 1);
+                _writer.hermesPut(interest.name(), Protocol.SUCCESS.getBytes(Protocol.ENCODING), 1, interest);
             else
-                _writer.put(interest.name(), Protocol.ERROR, 1);
+                _writer.hermesPut(interest.name(), Protocol.ERROR.getBytes(Protocol.ENCODING), 1, interest);
         }
         catch(SignatureException ex){
-            ex.printStackTrace();
-        }
-        catch(MalformedContentNameStringException ex){
             ex.printStackTrace();
         }
         catch(IOException ex){

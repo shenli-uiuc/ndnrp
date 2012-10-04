@@ -175,12 +175,9 @@ public class HeavyServer implements CCNFilterListener{
         
         try{
             _writer.addOutstandingInterest(interest);
-            _writer.put(interest.name(), res, 1);
+            _writer.hermesPut(interest.name(), res.getBytes(Protocol.ENCODING), 1, interest);
         }
         catch(SignatureException ex){
-            ex.printStackTrace();
-        }
-        catch(MalformedContentNameStringException ex){
             ex.printStackTrace();
         }
         catch(IOException ex){

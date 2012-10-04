@@ -30,6 +30,7 @@ public class IPClient{
         this._buf = new byte[BUF_LEN];
         if((type & SUBSCRIBER) > 0){
             this._socket = getSocket();
+            listen();
         }
     }    
 
@@ -74,17 +75,8 @@ public class IPClient{
             System.out.println("Error in IPClient.send: socket is null");
             return;
         }
-        try{
-            OutputStream out = socket.getOutputStream();
-            out.write(msg.getBytes(Protocol.ENCODING));
-            out.flush(); 
-        }
-        catch(UnsupportedEncodingException ex){
-            ex.printStackTrace();
-        }
-        catch(IOException ex){
-            ex.printStackTrace();
-        }
+        IPSendThread sth = new IPSendThread(socket, msg);
+        sth.start();
     }
 
     public void listen(){

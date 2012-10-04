@@ -14,7 +14,6 @@ public class TestIPSub{
         IPClient ipc = new IPClient(Protocol.SERVER_IP, Protocol.SERVER_PORT,
                                     "Bob", IPClient.SUBSCRIBER);
 
-        ipc.listen();
         ipc.subscribe("Alice");
         System.out.println("start receiving data: ");
         while(true){

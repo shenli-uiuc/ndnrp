@@ -57,7 +57,8 @@ public class Publisher{
             //Interest interest = new Interest(prefix);
             //_writer.addOutstandingInterest(interest);
             Thread.sleep(1000);
-            _writer.put(ContentName.fromURI(prefix), msg, Protocol.MSG_TTL);
+            _writer.hermesPut(ContentName.fromURI(prefix), msg.getBytes(Protocol.ENCODING), 
+                                Protocol.MSG_TTL, new Interest(prefix));
         }
         catch(SignatureException ex){
             ex.printStackTrace();
