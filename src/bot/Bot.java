@@ -5,6 +5,8 @@ import ndnrp.ndnsrc.sub.*;
 import ndnrp.protocol.*;
 import ndnrp.util.*;
 
+import org.ccnx.ccn.CCNHandle;
+
 import java.net.*;
 import java.util.*;
 import java.io.*;
