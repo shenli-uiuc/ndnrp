@@ -36,13 +36,8 @@ public class IPClient{
 
     private Socket getSocket(){
         try{
-            if(null != _socket && !_socket.isClosed()){
-                return _socket;
-            }
-            else{
-                System.out.println("Creating new socket");
-                return new Socket(_ip, _port);
-            }
+            System.out.println("Creating new socket");
+            return new Socket(_ip, _port);
         }
         catch(UnknownHostException ex){
             ex.printStackTrace();
@@ -58,7 +53,7 @@ public class IPClient{
             _socket= getSocket();
         }
         String subMsg = Protocol.HEAVY_SUB_PREFIX + _name + "/" + pubName;
-        send(_socket, subMsg);
+        send(_socket, subMsg, false);
     }
 
 
@@ -67,15 +62,15 @@ public class IPClient{
             _socket = getSocket();
         }
         String unsMsg = Protocol.HEAVY_UNSUB_PREFIX + _name + "/" + pubName;
-        send(_socket, unsMsg);
+        send(_socket, unsMsg, false);
     }
 
-    private void send(Socket socket, String msg){
+    private void send(Socket socket, String msg, boolean close){
         if(null == socket || socket.isClosed()){
             System.out.println("Error in IPClient.send: socket is null");
             return;
         }
-        IPSendThread sth = new IPSendThread(socket, msg);
+        IPSendThread sth = new IPSendThread(socket, msg, close);
         sth.start();
     }
 
@@ -84,7 +79,7 @@ public class IPClient{
             _socket = getSocket();
         }
         String listenMsg = Protocol.HEAVY_LISTEN_PREFIX + _name;
-        send(_socket, listenMsg);
+        send(_socket, listenMsg, false);
     }
 
     public String receive(){
@@ -100,7 +95,7 @@ public class IPClient{
                 System.out.println("In IPClient.listen: _buf overflow");
                 return null;
             }
-            return new String(_buf, 0, cnt);
+            return new String(_buf, 0, cnt, Protocol.ENCODING);
         }
         catch(IOException ex){
             ex.printStackTrace();
@@ -112,16 +107,7 @@ public class IPClient{
         Socket socket = getSocket();
 
         String postMsg = Protocol.HEAVY_POST_PREFIX + _name + "/" + msg;
-        send(socket, postMsg);
-        if(socket != _socket){
-            try{
-                socket.close();
-                System.out.println("Socket closed");
-            }
-            catch(IOException ex){
-                ex.printStackTrace();
-            }
-            socket = null;
-        }
+        send(socket, postMsg, (socket != _socket));
+        socket = null;
     }
 }

@@ -56,7 +56,7 @@ public class Publisher{
         try{
             //Interest interest = new Interest(prefix);
             //_writer.addOutstandingInterest(interest);
-            Thread.sleep(1000);
+            Thread.sleep(Protocol.SERVER_DELAY);
             _writer.hermesPut(ContentName.fromURI(prefix), msg.getBytes(Protocol.ENCODING), 
                                 Protocol.MSG_TTL, new Interest(prefix));
         }

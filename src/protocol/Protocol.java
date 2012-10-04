@@ -4,6 +4,7 @@ public class Protocol{
     public static final String SERVER_IP = "127.0.0.1";
     public static final int SERVER_PORT = 20480;
     public static final String ENCODING = "UTF-16LE";
+    public static final int SERVER_DELAY = 1000;
 
     public static final String LIGHT_POST_PREFIX = "ccnx:/ndnrp/light/post/";
     public static final String LIGHT_PUB_PREFIX = "ccnx:/ndnrp/light/pub/";
