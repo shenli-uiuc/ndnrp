@@ -56,6 +56,7 @@ public class LSSubscriber {
         _subSet.add(name);
         SubscribeThread st = new SubscribeThread(name, _handle, _lbq);
         _threadList.add(st);
+        st.setDaemon(true);
         st.start();
         return true;
     }
@@ -77,6 +78,7 @@ public class LSSubscriber {
     //this is non-blocking, post is done by a separate thread
     public void post(String msg){
         PostThread pt = new PostThread(Protocol.LIGHT_POST_PREFIX + _name, _strValidator.toValid(msg), _handle);
+        pt.setDaemon(true);
         pt.start();
     }
 

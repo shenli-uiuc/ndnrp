@@ -24,6 +24,7 @@ public class MasterBot{
         for(int i = 0 ; i < _botNum; ++i){
             _bots[i] = new Bot(Protocol.SERVER_IP, Protocol.SERVER_PORT, i,
                             _minWait, _maxWait, _handle);
+            _bots[i].setDaemon(true);
             _bots[i].on();
         }
     }
@@ -34,4 +35,5 @@ public class MasterBot{
         } 
     }
 
+    
 }

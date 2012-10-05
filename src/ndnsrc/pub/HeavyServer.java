@@ -98,6 +98,7 @@ public class HeavyServer implements CCNFilterListener{
         }
         else{
             PropagatePostThread ppt = new PropagatePostThread(subSet, publisher, msg);
+            ppt.setDaemon(true);
             ppt.start();
             return Protocol.SUCCESS;
         }

@@ -45,6 +45,7 @@ public class IPReqHandler extends Thread{
                 }
                 lu.setSocket(_socket);
                 IPSubHandler thread = new IPSubHandler(_socket, _followMap);
+                thread.setDaemon(true);
                 lu.setHandler(thread);
                 thread.start();
                 //I only keep the socket, the server push is on-demand
@@ -55,6 +56,7 @@ public class IPReqHandler extends Thread{
         else{
             //create a not IPLiveUser
             IPSubHandler thread = new IPSubHandler(_socket, _followMap);
+            thread.setDaemon(true);
             thread.start();
             lu = new IPLiveUser(data, _socket, thread);
             _userMap.put(data, lu);

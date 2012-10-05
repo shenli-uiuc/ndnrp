@@ -36,6 +36,7 @@ public class IPServer{
                     socket = ss.accept();
                     System.out.println("Got one connection");
                     IPReqHandler rh = new IPReqHandler(socket, _followMap, _userMap);
+                    rh.setDaemon(true);
                     rh.start();
                 }
             }

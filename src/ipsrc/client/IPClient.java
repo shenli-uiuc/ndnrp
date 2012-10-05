@@ -71,6 +71,7 @@ public class IPClient{
             return;
         }
         IPSendThread sth = new IPSendThread(socket, msg, close);
+        sth.setDaemon(true);
         sth.start();
     }
 

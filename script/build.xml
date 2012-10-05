@@ -51,7 +51,11 @@
         <javac srcdir="src/bot" destdir="build/" classpathref="libs" includeantruntime="false"/>
     </target>
 
-    <target name = "all" depends="clean, ndnrp_gui, ndnrp_ndn_test, ndnrp_ip_test">
+    <target name = "ndnrp_bot_test" depends = "ndnrp_bot">
+        <javac srcdir="src/bot/test" destdir="build/" classpathref="libs" includeantruntime="false"/>
+    </target>
+
+    <target name = "all" depends="clean, ndnrp_gui, ndnrp_ndn_test, ndnrp_ip_test, ndnrp_bot_test">
     </target>
 
     

@@ -245,6 +245,8 @@ public class UserPanel extends JPanel{
             _lsRec = new LSRecThread();
             _ipRec = new IPRecThread();
 
+            _lsRec.setDaemon(true);
+            _ipRec.setDaemon(true);
             _lsRec.start();
             _ipRec.start();
         }

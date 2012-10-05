@@ -20,7 +20,7 @@ public class Bot extends Thread{
 
     private CCNHandle _handle = null;
     private String _ip = null;
-    private int _id = 0
+    private int _id = 0;
     private int _port = 0;
     private IPClient _ipSub = null;
     private LSSubscriber _lsSub = null;
@@ -45,8 +45,8 @@ public class Bot extends Thread{
         this._rnd = new Random(id);        
         this._charBuf = new char[MAX_STR_LEN];
 
-        this._hsSub = new LSSubscriber(_name, _handle);
-        this._ipSub = new IPClient(_ip, _port, _name, IPClient.Publisher);
+        this._lsSub = new LSSubscriber(_name, _handle);
+        this._ipSub = new IPClient(_ip, _port, _name, IPClient.PUBLISHER);
     }
 
     public void on(){
@@ -61,7 +61,7 @@ public class Bot extends Thread{
     private String getRndStr(){
         int rndLen = _rnd.nextInt(MAX_STR_LEN - MIN_STR_LEN) + MIN_STR_LEN;
         for (int i = 0; i < rndLen; i++){
-            _charBuf[i] = CHAR_SET.charAt(rng.nextInt(CHAR_SET.length()));
+            _charBuf[i] = CHAR_SET[_rnd.nextInt(CHAR_SET.length)];
         }
         return new String(_charBuf, 0, rndLen);
     }
@@ -75,7 +75,7 @@ public class Bot extends Thread{
         try{
             while(_isRunning){
                 rndStr = getRndStr();
-                _hsSub.post(rndStr);
+                _lsSub.post(rndStr);
                 _ipSub.post(rndStr);
                 Thread.sleep(getRndLen());
             }

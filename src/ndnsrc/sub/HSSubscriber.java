@@ -123,6 +123,7 @@ public class HSSubscriber {
     //this is non-blocking, post is done by a separate thread
     public void post(String msg){
         PostThread pt = new PostThread(Protocol.HEAVY_POST_PREFIX + _name, _strValidator.toValid(msg), _handle);
+        pt.setDaemon(true);
         pt.start();
     }
 
