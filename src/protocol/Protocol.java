@@ -8,6 +8,7 @@ public class Protocol{
 
     public static final String LIGHT_POST_PREFIX = "ccnx:/ndnrp/light/post/";
     public static final String LIGHT_PUB_PREFIX = "ccnx:/ndnrp/light/pub/";
+    public static final String LIGHT_BOT_PUB_PREFIX = "ccnx:/ndnrp/light/bot/pub/";
     public static final String LIGHT_PREFIX = "ccnx:/ndnrp/light/";
 
     public static final String HEAVY_POST_PREFIX = "ccnx:/ndnrp/heavy/post/";

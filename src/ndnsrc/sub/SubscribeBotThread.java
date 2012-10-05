@@ -1,42 +1,39 @@
 package ndnrp.ndnsrc.sub;
 
-import ndnrp.util.*;
 import ndnrp.protocol.*;
+import ndnrp.util.*;
 
-import org.ccnx.ccn.CCNFilterListener;
 import org.ccnx.ccn.CCNHandle;
-import org.ccnx.ccn.config.ConfigurationException;
-import org.ccnx.ccn.impl.support.Log;
 import org.ccnx.ccn.io.CCNReader;
-import org.ccnx.ccn.io.CCNWriter;
-import org.ccnx.ccn.protocol.CCNTime;
+import org.ccnx.ccn.config.ConfigurationException;
+import org.ccnx.ccn.protocol.MalformedContentNameStringException;
 import org.ccnx.ccn.protocol.ContentName;
-import org.ccnx.ccn.protocol.Exclude;
-import org.ccnx.ccn.protocol.ExcludeComponent;
 import org.ccnx.ccn.protocol.Interest;
 import org.ccnx.ccn.protocol.ContentObject;
-import org.ccnx.ccn.protocol.MalformedContentNameStringException;
 
+import java.io.*;
+import java.util.*;
 import java.util.concurrent.*;
-import java.io.IOException;
 
-public class SubscribeThread extends Thread{
-
-    private String _name = null;
+public class SubscribeBotThread extends Thread{
     private CCNHandle _handle = null;
     private LinkedBlockingQueue _lbq = null;
     private CCNReader _reader = null;
+    private HashSet<String> _subSet = null;
     private boolean _isRunning = false;
     private StrValidator _strValidator = null;
+    //private FPCounter _fpc = null;
 
-    public SubscribeThread(String name, CCNHandle handle, LinkedBlockingQueue lbq){
-        this._name = name;
+    public SubscribeBotThread(CCNHandle handle, LinkedBlockingQueue lbq, 
+                HashSet<String> subSet){
         this._handle = handle;
         this._lbq = lbq;
+        this._subSet = subSet;
         this._strValidator = new StrValidator();
+        //this._fpc = fpc;
 
         try{
-            this._reader = new CCNReader(handle);
+            this._reader = new CCNReader(_handle);
         }
         catch(ConfigurationException ex){
             ex.printStackTrace();
@@ -44,6 +41,16 @@ public class SubscribeThread extends Thread{
         catch(IOException ex){
             ex.printStackTrace();
         }
+
+    }
+
+    public synchronized boolean subscribe(String name){
+        if(_subSet.contains(name)){
+            //already subscribing to the name
+            return false;
+        }
+        _subSet.add(name);
+        return true;
     }
 
     public void stopAllSub(){
@@ -51,15 +58,20 @@ public class SubscribeThread extends Thread{
     }
 
     public void run(){
-        String curMsg = null;
+        MsgItem msgItem = null;
         _isRunning = true;
+        int splitIndex = 0;
         while(_isRunning){
-            curMsg = receive();
-            if(null == curMsg){
+            msgItem = receive();
+            if(null == msgItem){
                 continue;
             }
             try{
-                _lbq.put(new MsgItem(_name, _strValidator.fromValid(curMsg)));
+                if(_subSet.contains(msgItem.getPublisher())){
+                    //TODO: inc fpc.fp
+                }
+                //TODO: inc fpc.all
+                _lbq.put(msgItem);
             }
             catch(InterruptedException ex){
                 ex.printStackTrace();
@@ -73,11 +85,10 @@ public class SubscribeThread extends Thread{
         }
     }
 
-    
 
-    private String receive(){
+    private MsgItem receive(){
         try{
-            ContentName contentName = ContentName.fromURI(Protocol.LIGHT_PUB_PREFIX + _name);
+            ContentName contentName = ContentName.fromURI(Protocol.LIGHT_BOT_PUB_PREFIX);
             Interest interest = new Interest(contentName);
             System.out.println("**************" + contentName.toURIString());
             //every receive waits for only 5 seconds, cause we gonna need to stop this thread in the middle of execution
@@ -86,8 +97,9 @@ public class SubscribeThread extends Thread{
                 return null;
             }
             String ans = new String(co.content(), Protocol.ENCODING);
-            System.out.println("Got data : " + ans);
-            return ans;
+            String name = co.getContentName().toURIString().substring(Protocol.LIGHT_BOT_PUB_PREFIX.length());
+            System.out.println("Got data from " + name  + ": " + ans);
+            return new MsgItem(name, _strValidator.fromValid(ans));
         }
         catch (IOException e) {
             System.out.println("IOException in CCNQuerySender-sendQuery: " + e.getMessage());
@@ -100,5 +112,4 @@ public class SubscribeThread extends Thread{
 
         return null;
     }
-
 }

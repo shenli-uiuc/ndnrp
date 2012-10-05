@@ -38,6 +38,7 @@ public class LSSubscriber {
     private LinkedBlockingQueue<MsgItem> _lbq = null;
     private ArrayList<SubscribeThread> _threadList = null;
     private StrValidator _strValidator = null;
+    private SubscribeBotThread _sbt = null;
 
     public LSSubscriber(String name, CCNHandle handle){
         this._handle = handle;
@@ -46,6 +47,7 @@ public class LSSubscriber {
         this._lbq = new LinkedBlockingQueue<MsgItem>();
         this._threadList = new ArrayList<SubscribeThread>();
         this._strValidator = new StrValidator();
+        this._sbt = new SubscribeBotThread(_handle, _lbq, _subSet);
     } 
 
     public synchronized boolean subscribe(String name){
@@ -71,7 +73,7 @@ public class LSSubscriber {
             ex.printStackTrace();
 
         }
-        return msgItem.getPublisher() + ": " + _strValidator.fromValid(msgItem.getMsg());
+        return msgItem.getPublisher() + ": " + msgItem.getMsg();
     }
 
 
