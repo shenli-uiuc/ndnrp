@@ -48,6 +48,10 @@ public class IPClient{
         return null;
     }
 
+    public void subscribeBot(String pubName){
+        subscribe(pubName);
+    }
+
     public void subscribe(String pubName){
         if(null == _socket){
             _socket= getSocket();
@@ -56,6 +60,9 @@ public class IPClient{
         send(_socket, subMsg, false);
     }
 
+    public void unsubscribeBot(String pubName){
+        unsubscribe(pubName);
+    }
 
     public void unsubscribe(String pubName){
         if(null == _socket){    

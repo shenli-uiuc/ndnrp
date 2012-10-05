@@ -53,8 +53,20 @@ public class SubscribeBotThread extends Thread{
         return true;
     }
 
+    public synchronized boolean unsubscribe(String name){
+        if(!_subSet.contains(name)){
+            return false;
+        }
+        _subSet.remove(name);
+        return true;
+    }
+
     public void stopAllSub(){
         _isRunning = false;
+    }
+
+    public boolean isRunning(){
+        return _isRunning;
     }
 
     public void run(){

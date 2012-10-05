@@ -63,6 +63,18 @@ public class LSSubscriber {
         return true;
     }
 
+    public synchronized boolean subscribeBot(String name){
+        if(!_sbt.isRunning()){
+            _sbt.setDaemon(true);
+            _sbt.start();
+        }
+        return _sbt.subscribe(name);
+    }
+
+    public synchronized boolean unsubscribeBot(String name){
+        return _sbt.unsubscribe(name);
+    }
+
     //this should be blocking
     public String receive(){
         MsgItem msgItem = null;
