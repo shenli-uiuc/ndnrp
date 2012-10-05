@@ -48,16 +48,25 @@ public class IPClient{
         return null;
     }
 
+    public boolean isSubscribing(String pubName){
+        return _subSet.contains(pubName);
+    }
+
     public void subscribeBot(String pubName){
         subscribe(pubName);
     }
 
-    public void subscribe(String pubName){
+    public boolean subscribe(String pubName){
+        if(isSubscribing(pubName)){
+            return false;
+        }
         if(null == _socket){
             _socket= getSocket();
         }
+        _subSet.add(pubName);
         String subMsg = Protocol.HEAVY_SUB_PREFIX + _name + "/" + pubName;
         send(_socket, subMsg, false);
+        return true;
     }
 
     public void unsubscribeBot(String pubName){
@@ -65,11 +74,16 @@ public class IPClient{
     }
 
     public void unsubscribe(String pubName){
+        if(!isSubscribing(pubName)){
+            return false;
+        }
         if(null == _socket){    
             _socket = getSocket();
         }
+        _subSet.remove(pubName);
         String unsMsg = Protocol.HEAVY_UNSUB_PREFIX + _name + "/" + pubName;
         send(_socket, unsMsg, false);
+        return true
     }
 
     private void send(Socket socket, String msg, boolean close){

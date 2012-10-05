@@ -6,6 +6,7 @@ import ndnrp.ipsrc.client.*;
 import ndnrp.ipsrc.server.*;
 import ndnrp.protocol.*;
 import ndnrp.util.*;
+import ndnrp.bot.*;
 
 import javax.swing.*;
 import javax.swing.table.*;
@@ -233,6 +234,11 @@ public class UserPanel extends JPanel{
 
     class StartButtonListener implements ActionListener{
         public void actionPerformed(ActionEvent e){
+            if(null != _ipSub && null != _lsSub){
+                JOptionPane.showMessageDialog(null,
+                        "Already Started", "Info", JOptionPane.INFORMATION_MESSAGE);
+                return;
+            }
             String name = _nameField.getText();
             if(null == name || name.equals("")){
                 JOptionPane.showMessageDialog(null, 
@@ -287,6 +293,65 @@ public class UserPanel extends JPanel{
             while(true){
                 msg = _ipSub.receive();
                 _hsJTextArea.append(msg + "\n");
+            }
+        }
+    }
+
+    //This thread automatically issue subscriptions 
+    class LSSubBotThread extends Thread{
+        private LSSubscriber _lss = null;
+        private int _botNum = 0;
+
+        public LSSubBotThread(LSSubscriber lss, int botNum){
+            this._lss = lss;
+            this._botNum = botNum;
+        }
+
+        public void run(){
+            int i = 0;
+            try{
+                while(true){
+                    if(_lss.isSubscribing()){
+                        _lss.unsubscribe(BotConfig.NAME_PREFIX + i);
+                    }
+                    else{
+                        _lss.subscribe(BotConfig.NAME_PREFIX + i);
+                    }
+                    i = (i + 1) % _botNum;
+                    Thread.sleep(BotConfig.SUB_BOT_INTERVAL);
+                }   
+            }
+            catch(InterruptedException ex){
+                ex.printStackTrace();
+            }
+        }
+    }
+
+    class IPSubBotThread extends Thread{
+        private IPClient _ipc = null;
+        private int _botNum = 0;    
+
+        public IPSubBotThread(IPClient ipc, int botNum){
+            this._ipc = ipc;
+            this._botNum = botNum;
+        }
+
+        public void run(){
+            int i = 0;
+            try{
+                while(true){
+                    if(_ipc.isSubscribing()){
+                        _ipc.unsubscribe(BotConfig.NAME_PREFIX + i);
+                    }
+                    else{
+                        _ipc.subscribe(BotConfig.NAME_PREFIX + i);
+                    }
+                    i = (i + 1) % _botNum;
+                    Thread.sleep(BotConfig.SUB_BOT_INTERVAL);
+                }
+            }
+            catch(InterruptedException ex){
+                ex.printStackTrace();
             }
         }
     }

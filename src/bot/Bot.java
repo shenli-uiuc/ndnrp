@@ -12,7 +12,6 @@ import java.util.*;
 import java.io.*;
 
 public class Bot extends Thread{
-    public static final String NAME_PREFIX = "Bot";
     public static final int MIN_STR_LEN = 10;
     public static final int MAX_STR_LEN = 20;
     public static final char[] CHAR_SET = 
@@ -38,7 +37,7 @@ public class Bot extends Thread{
         this._ip = ip;
         this._port = port;
         this._id = id;
-        this._name = NAME_PREFIX + _id;
+        this._name = BotConfig.NAME_PREFIX + _id;
         this._minWait = minWait;
         this._maxWait = maxWait;
         this._isRunning = false;
