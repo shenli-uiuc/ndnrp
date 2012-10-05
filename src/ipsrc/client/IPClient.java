@@ -52,8 +52,8 @@ public class IPClient{
         return _subSet.contains(pubName);
     }
 
-    public void subscribeBot(String pubName){
-        subscribe(pubName);
+    public boolean subscribeBot(String pubName){
+        return subscribe(pubName);
     }
 
     public boolean subscribe(String pubName){
@@ -69,11 +69,11 @@ public class IPClient{
         return true;
     }
 
-    public void unsubscribeBot(String pubName){
-        unsubscribe(pubName);
+    public boolean unsubscribeBot(String pubName){
+        return unsubscribe(pubName);
     }
 
-    public void unsubscribe(String pubName){
+    public boolean unsubscribe(String pubName){
         if(!isSubscribing(pubName)){
             return false;
         }
@@ -83,7 +83,7 @@ public class IPClient{
         _subSet.remove(pubName);
         String unsMsg = Protocol.HEAVY_UNSUB_PREFIX + _name + "/" + pubName;
         send(_socket, unsMsg, false);
-        return true
+        return true;
     }
 
     private void send(Socket socket, String msg, boolean close){

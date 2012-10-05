@@ -309,16 +309,18 @@ public class UserPanel extends JPanel{
 
         public void run(){
             int i = 0;
+            String curName = null;
             try{
                 while(true){
-                    if(_lss.isSubscribing()){
-                        _lss.unsubscribe(BotConfig.NAME_PREFIX + i);
+                    curName = BotConfig.NAME_PREFIX + i;
+                    if(_lss.isSubscribing(curName)){
+                        _lss.unsubscribeBot(curName);
                     }
                     else{
-                        _lss.subscribe(BotConfig.NAME_PREFIX + i);
+                        _lss.subscribeBot(curName);
                     }
                     i = (i + 1) % _botNum;
-                    Thread.sleep(BotConfig.SUB_BOT_INTERVAL);
+                    Thread.sleep(BotConfig.SUB_INTERVAL);
                 }   
             }
             catch(InterruptedException ex){
@@ -338,16 +340,18 @@ public class UserPanel extends JPanel{
 
         public void run(){
             int i = 0;
+            String curName = null;
             try{
                 while(true){
-                    if(_ipc.isSubscribing()){
-                        _ipc.unsubscribe(BotConfig.NAME_PREFIX + i);
+                    curName = BotConfig.NAME_PREFIX + i;
+                    if(_ipc.isSubscribing(curName)){
+                        _ipc.unsubscribeBot(curName);
                     }
                     else{
-                        _ipc.subscribe(BotConfig.NAME_PREFIX + i);
+                        _ipc.subscribeBot(curName);
                     }
                     i = (i + 1) % _botNum;
-                    Thread.sleep(BotConfig.SUB_BOT_INTERVAL);
+                    Thread.sleep(BotConfig.SUB_INTERVAL);
                 }
             }
             catch(InterruptedException ex){

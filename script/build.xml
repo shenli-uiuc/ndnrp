@@ -39,7 +39,7 @@
         <javac srcdir="src/ipsrc/client" destdir="build/" classpathref="libs" includeantruntime="false"/>
     </target>
 
-    <target name = "ndnrp_gui" depends = "ndnrp_ndn_sub, ndnrp_ndn_pub, ndnrp_ip_server, ndnrp_ip_client">
+    <target name = "ndnrp_gui" depends = "ndnrp_ndn_sub, ndnrp_ndn_pub, ndnrp_ip_server, ndnrp_ip_client, ndnrp_bot">
         <javac srcdir="src/gui" destdir="build/" classpathref="libs" includeantruntime="false"/>
     </target>
 

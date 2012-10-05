@@ -20,8 +20,8 @@ public class TestBotSub{
                     NAME, IPClient.SUBSCRIBER);
             LSSubscriber lsSub = new LSSubscriber(NAME, CCNHandle.open());
             for(int i = 0; i < TestBot.BOT_NUM; ++i){
-                ipSub.subscribe(Bot.NAME_PREFIX + i);
-                lsSub.subscribe(Bot.NAME_PREFIX + i);
+                ipSub.subscribe(BotConfig.NAME_PREFIX + i);
+                lsSub.subscribe(BotConfig.NAME_PREFIX + i);
             }        
             while(true){
                 System.out.println("ipSub - " + ipSub.receive());

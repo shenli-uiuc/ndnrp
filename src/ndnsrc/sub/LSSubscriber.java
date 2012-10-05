@@ -50,6 +50,10 @@ public class LSSubscriber {
         this._sbt = new SubscribeBotThread(_handle, _lbq, _subSet);
     } 
 
+    public synchronized boolean isSubscribing(String name){
+        return _subSet.contains(name);
+    }
+
     public synchronized boolean subscribe(String name){
         if(_subSet.contains(name)){
             //already subscribing to the name
