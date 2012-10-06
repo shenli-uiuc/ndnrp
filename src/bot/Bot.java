@@ -12,8 +12,8 @@ import java.util.*;
 import java.io.*;
 
 public class Bot extends Thread{
-    public static final int MIN_STR_LEN = 10;
-    public static final int MAX_STR_LEN = 20;
+    public static final int MIN_STR_LEN = BotConfig.MIN_MSG;
+    public static final int MAX_STR_LEN = BotConfig.MAX_MSG;
     public static final char[] CHAR_SET = 
             "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789".toCharArray(); 
 
@@ -74,8 +74,8 @@ public class Bot extends Thread{
         try{
             while(_isRunning){
                 rndStr = getRndStr();
-                _lsSub.post(rndStr);
-                _ipSub.post(rndStr);
+                _lsSub.botPost(rndStr);
+                _ipSub.botPost(rndStr);
                 Thread.sleep(getRndLen());
             }
         }

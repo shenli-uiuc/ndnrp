@@ -60,6 +60,7 @@ public class LightServer implements CCNFilterListener{
         // All we have to do is say that we're listening on our main prefix.
         try{
             _handle.registerFilter(ContentName.fromURI(Protocol.LIGHT_POST_PREFIX), this);
+            _handle.registerFilter(ContentName.fromURI(Protocol.LIGHT_BOT_POST_PREFIX), this);
         }
         catch(MalformedContentNameStringException ex){
             ex.printStackTrace();
@@ -69,36 +70,52 @@ public class LightServer implements CCNFilterListener{
         }
     }
 
-    private MsgItem getMsgItem(Interest interest){
-        String strMsg = interest.name().toURIString().substring(Protocol.LIGHT_POST_PREFIX.length());
+    private MsgItem getMsgItem(String inPrefix, String outPrefix, Interest interest){
+        String strMsg = interest.name().toURIString().substring(inPrefix.length());
         int splitIndex = strMsg.indexOf("/");
         String usr = strMsg.substring(0, splitIndex);
         String msg = strMsg.substring(splitIndex + 1, strMsg.length());
-        String strPub = Protocol.LIGHT_PUB_PREFIX + usr;
+        String strPub = outPrefix + usr;
         return new MsgItem(strPub, msg);
     }
-
 
 
     public boolean handleInterest(Interest interest) {
         System.out.println("===========================received Interest : " + interest.name().toURIString() + "\n");
 
         if (SegmentationProfile.isSegment(interest.name()) && !SegmentationProfile.isFirstSegment(interest.name())) {
-            System.out.println("Got an interest for something other than a first segment, ignoring : " + interest.name().toURIString());
+            System.out.println("Got an interest for something other than a first segment, ignoring : " 
+                                                        + interest.name().toURIString());
             return false;
         } 
         else if (MetadataProfile.isHeader(interest.name())) {
-            System.out.println("Got an interest for the first segment of the header, ignoring : " + interest.name().toURIString());
+            System.out.println("Got an interest for the first segment of the header, ignoring : " 
+                                                        + interest.name().toURIString());
             return false;
         }     
 
-        MsgItem msgItem = getMsgItem(interest);
+        String name = interest.name().toURIString();
+        MsgItem msgItem = null;
+        if(name.substring(0, Protocol.LIGHT_POST_PREFIX.length()).equals(Protocol.LIGHT_POST_PREFIX)){
+            msgItem = getMsgItem(Protocol.LIGHT_POST_PREFIX, Protocol.LIGHT_PUB_PREFIX, interest);
+        }
+        else if(name.substring(0, Protocol.LIGHT_BOT_POST_PREFIX.length()).equals(Protocol.LIGHT_BOT_POST_PREFIX)){
+            msgItem = getMsgItem(Protocol.LIGHT_BOT_POST_PREFIX,
+                                    Protocol.LIGHT_BOT_PUB_PREFIX, interest);
+        }
+        else{
+            System.out.println("Unrecognized interest!");
+            msgItem = null;
+        }
+
         try{
             _writer.addOutstandingInterest(interest);
             if(null != msgItem)
                 _writer.hermesPut(interest.name(), Protocol.SUCCESS.getBytes(Protocol.ENCODING), 1, interest);
-            else
+            else{
                 _writer.hermesPut(interest.name(), Protocol.ERROR.getBytes(Protocol.ENCODING), 1, interest);
+                return false;
+            }
         }
         catch(SignatureException ex){
             ex.printStackTrace();
@@ -111,7 +128,6 @@ public class LightServer implements CCNFilterListener{
         _pub.publish(msgItem.getPublisher(), msgItem.getMsg());
         return true;
     }
-
     /**
      * Turn off everything.
      * @throws IOException 
@@ -120,6 +136,7 @@ public class LightServer implements CCNFilterListener{
         if (null != _handle) {
             try{
                 _handle.unregisterFilter(ContentName.fromURI(Protocol.LIGHT_POST_PREFIX), this);
+                _handle.unregisterFilter(ContentName.fromURI(Protocol.LIGHT_BOT_POST_PREFIX), this);
                 System.out.println("CCNQueryListener Closed!\n");
             }
             catch(MalformedContentNameStringException ex){

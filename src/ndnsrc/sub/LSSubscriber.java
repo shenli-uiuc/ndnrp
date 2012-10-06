@@ -100,6 +100,11 @@ public class LSSubscriber {
         pt.start();
     }
 
+    public void botPost(String msg){
+        PostThread bpt = new PostThread(Protocol.LIGHT_BOT_POST_PREFIX + _name, msg, _handle);
+        bpt.setDaemon(true);
+        bpt.start();
+    }
 
 
     public static void main(String argv[]){

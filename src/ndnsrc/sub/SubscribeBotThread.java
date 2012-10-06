@@ -50,7 +50,41 @@ public class SubscribeBotThread extends Thread{
             return false;
         }
         _subSet.add(name);
+        SendThread st = new SendThread(Protocol.LIGHT_BOT_SUB_PREFIX + name);
+        st.setDaemon(true);
+        st.start();
         return true;
+    }
+
+    // This thread will refresh the interest for publishers in _subSet
+    private class RefreshThread extends Thread{
+        public void run(){
+        }
+    }
+
+    private class SendThread extends Thread{
+        private String _name = null;
+
+        public SendThread(String name){
+            this._name = name;
+        }
+
+        public void run(){
+            try{
+                ContentName contentName = ContentName.fromURI(_name);
+                Interest interest = new Interest(contentName);
+                System.out.println("**************" + contentName.toURIString());
+                _reader.hermesGet(interest, 1);
+            }
+            catch (IOException e) {
+                System.out.println("IOException in SendThread.run: " + e.getMessage());
+                e.printStackTrace();
+            }
+            catch (MalformedContentNameStringException e) {
+                System.out.println("MalformedContentNameStringException in SendThread.run : " + e.getMessage());
+                e.printStackTrace();
+            }
+        }
     }
 
     public synchronized boolean unsubscribe(String name){
@@ -88,12 +122,6 @@ public class SubscribeBotThread extends Thread{
             catch(InterruptedException ex){
                 ex.printStackTrace();
             }
-            try{
-                Thread.sleep(1500);
-            }
-            catch(Exception ex){
-                ex.printStackTrace();
-            }
         }
     }
 
@@ -110,6 +138,10 @@ public class SubscribeBotThread extends Thread{
             }
             String ans = new String(co.content(), Protocol.ENCODING);
             String name = co.getContentName().toURIString().substring(Protocol.LIGHT_BOT_PUB_PREFIX.length());
+            int splitIndex = name.indexOf("/");
+            if(splitIndex > 0){
+                name = name.substring(0, splitIndex);
+            }
             System.out.println("Got data from " + name  + ": " + ans);
             return new MsgItem(name, _strValidator.fromValid(ans));
         }

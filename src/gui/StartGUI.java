@@ -2,7 +2,12 @@ package ndnrp.gui;
 
 import ndnrp.protocol.*;
 import ndnrp.util.*;
+import ndnrp.bot.*;
 
+import org.ccnx.ccn.CCNHandle;
+import org.ccnx.ccn.config.ConfigurationException;
+
+import java.io.*;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
@@ -22,6 +27,16 @@ public class StartGUI{
         jf.setSize(bp.WIDTH + EDGE_WIDTH, bp.HEIGHT + HEAD_HEIGHT);
         jf.setResizable(false);
         jf.setVisible(true);
+        try{
+            MasterBot mb = new MasterBot(BotConfig.NUM, BotConfig.MIN_WAIT, BotConfig.MAX_WAIT, CCNHandle.open());
+            mb.start();
+        }
+        catch(ConfigurationException ex){
+            ex.printStackTrace();
+        }
+        catch(IOException ex){
+            ex.printStackTrace();
+        }
     }
 
 

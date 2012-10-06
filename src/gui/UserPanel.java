@@ -13,6 +13,7 @@ import javax.swing.table.*;
 import javax.swing.border.*;
 import java.awt.*;
 import java.awt.event.*;
+import javax.swing.text.DefaultCaret;
 
 import java.io.IOException;
 
@@ -50,7 +51,10 @@ public class UserPanel extends JPanel{
 
     private JTextArea _lsJTextArea = null;
     private JTextArea _hsJTextArea = null;
-    
+
+    private DefaultCaret _lsCaret = null;
+    private DefaultCaret _hsCaret = null;   
+ 
     private Label _lsLabel = null;
     private Label _hsLabel = null;
 
@@ -76,6 +80,9 @@ public class UserPanel extends JPanel{
 
     private LSRecThread _lsRec = null;
     private IPRecThread _ipRec = null;
+
+    private LSSubBotThread _lsBotTh = null;
+    private IPSubBotThread _ipBotTh = null;
 
     public UserPanel(String ip, int port){
         this._ip = ip;
@@ -110,6 +117,12 @@ public class UserPanel extends JPanel{
 
         _lsJTextArea.setLineWrap(true);
         _hsJTextArea.setLineWrap(true);
+
+        _lsCaret = (DefaultCaret)_lsJTextArea.getCaret();
+        _hsCaret = (DefaultCaret)_hsJTextArea.getCaret();
+
+        _lsCaret.setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE);
+        _hsCaret.setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE);
 
         _lsLabel = new Label("Light Server Response:");
         _hsLabel = new Label("Heavy Server Response:");
@@ -255,6 +268,13 @@ public class UserPanel extends JPanel{
             _ipRec.setDaemon(true);
             _lsRec.start();
             _ipRec.start();
+
+            _lsBotTh = new LSSubBotThread(_lsSub, BotConfig.NUM);
+            _ipBotTh = new IPSubBotThread(_ipSub, BotConfig.NUM);
+            _lsBotTh.setDaemon(true);
+            _ipBotTh.setDaemon(true);
+            _lsBotTh.start();
+            _ipBotTh.start();
         }
     }
 

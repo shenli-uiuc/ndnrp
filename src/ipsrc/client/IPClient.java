@@ -132,4 +132,8 @@ public class IPClient{
         send(socket, postMsg, (socket != _socket));
         socket = null;
     }
+     
+    public void botPost(String msg){
+        post(msg);
+    }
 }
