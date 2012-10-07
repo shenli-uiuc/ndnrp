@@ -84,9 +84,12 @@ public class UserPanel extends JPanel{
     private LSSubBotThread _lsBotTh = null;
     private IPSubBotThread _ipBotTh = null;
 
-    public UserPanel(String ip, int port){
+    private StatMonitor _statMonitor = null;
+
+    public UserPanel(String ip, int port, StatMonitor statMonitor){
         this._ip = ip;
         this._port = port;
+        this._statMonitor = statMonitor;
         try{
             _lsHandle = CCNHandle.open();
             //_hsHandle = CCNHandle.open();
@@ -383,7 +386,8 @@ public class UserPanel extends JPanel{
     public static void main(String args[]){
         JFrame jf = new JFrame();
         jf.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        UserPanel up = new UserPanel(Protocol.SERVER_IP, Protocol.SERVER_PORT);
+        StatMonitor sm = new StatMonitor();
+        UserPanel up = new UserPanel(Protocol.SERVER_IP, Protocol.SERVER_PORT, sm);
         jf.add(up);
         jf.setSize(up.WIDTH, up.HEIGHT);
         jf.setResizable(false);

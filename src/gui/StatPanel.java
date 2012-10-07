@@ -32,6 +32,12 @@ public class StatPanel extends JPanel{
     public static final int V_SPACE = 5;
     public static final int H_SPACE = (WIDTH - (4 * LABEL_WIDTH)) / 5;
 
+    public static final int REFRESH_INTERVAL = 1000;
+
+    private StatMonitor _statMonitor = null;
+    private MasterBot _mb = null;
+    private RefreshThread _rth = null;
+
     private String _ip = null;
     private int _port = 0;
 
@@ -57,9 +63,10 @@ public class StatPanel extends JPanel{
     private TextField _botField = null;
     private JButton _botButton = null;
 
-    public StatPanel(String ip, int port){
+    public StatPanel(String ip, int port, StatMonitor statMonitor){
         this._ip = ip;
         this._port = port;
+        this._statMonitor = statMonitor;
         initGUI();
     }
 
@@ -140,10 +147,9 @@ public class StatPanel extends JPanel{
 
     class BotButtonListener implements ActionListener{
         public void actionPerformed(ActionEvent e){
+            CCNHandle handle = null;
             try{
-                MasterBot mb = new MasterBot(BotConfig.NUM, BotConfig.MIN_WAIT, BotConfig.MAX_WAIT,
-                        CCNHandle.open(), _ip, _port);
-                mb.start();
+                handle = CCNHandle.open();            
             }
             catch(ConfigurationException ex){
                 ex.printStackTrace();
@@ -151,13 +157,81 @@ public class StatPanel extends JPanel{
             catch(IOException ex){
                 ex.printStackTrace();
             }
+
+            if(null == handle){
+                JOptionPane.showMessageDialog(null,
+                        "CCNHandle open failure. Check if ccnd has started!", "Info", JOptionPane.INFORMATION_MESSAGE);
+                return;
+            }
+
+            String strBotNum = _botField.getText();
+            int botNum = 0;
+            try{
+                botNum = Integer.parseInt(strBotNum);
+            }
+            catch(NumberFormatException ex){
+                ex.printStackTrace();
+                JOptionPane.showMessageDialog(null,
+                        "Please input a positive integer as bot number.", "Info", JOptionPane.INFORMATION_MESSAGE);
+                return;
+            }
+
+            if(botNum <= 0){
+                JOptionPane.showMessageDialog(null, "Please input a positive integer as bot number. Now botNum = " + botNum, 
+                                                "Info", JOptionPane.INFORMATION_MESSAGE);
+
+                return;
+            }
+
+            _mb = new MasterBot(botNum, BotConfig.MIN_WAIT, BotConfig.MAX_WAIT,
+                    handle, _ip, _port);
+            _mb.start();
+            
+            _rth = new RefreshThread();
+            _rth.start();
+        }
+    }
+
+    private class RefreshThread extends Thread{
+        public void run(){
+            int aMsg, wMsg, hMem, cMem;
+            double oFP, cFP;
+            while(true){
+                //refresh all msg
+                aMsg = _statMonitor.getAllMsg();
+                _aMsgField.setText("" + aMsg);
+                //refresh wrong msg
+                wMsg = _statMonitor.getWrongMsg();
+                _wMsgField.setText("" + wMsg);
+                //refresh overall FP
+                oFP = _statMonitor.getOverallFP();
+                _oFPField.setText("" + oFP);
+                //refresh current FP
+                cFP = _statMonitor.getCurrentFP();
+                _cFPField.setText("" + cFP);
+                //refresh Hermes mem
+                hMem = _statMonitor.getHermesMem();
+                _hMemField.setText("" + hMem);
+                //refresh ccnx mem
+                cMem = _statMonitor.getCCNxMem();
+                _cMemField.setText("" + cMem);
+
+                try{
+                    Thread.sleep(REFRESH_INTERVAL);
+                }
+                catch(InterruptedException ex){
+                    ex.printStackTrace();
+                    return;
+                }
+            }
         }
     }
 
     public static void main(String args[]){
         JFrame jf = new JFrame();
         jf.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        StatPanel sp = new StatPanel(Protocol.SERVER_IP, Protocol.SERVER_PORT);
+        StatMonitor sm = new StatMonitor();
+        StatPanel sp = new StatPanel(Protocol.SERVER_IP, Protocol.SERVER_PORT, sm);
         jf.add(sp);
         jf.setSize(sp.WIDTH, sp.HEIGHT);
         jf.setResizable(false);

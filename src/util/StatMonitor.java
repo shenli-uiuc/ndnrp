@@ -1,7 +1,5 @@
 package ndnrp.util;
 
-import ndnrp.protocol.*;
-
 import java.util.*;
 
 public class StatMonitor{
@@ -19,27 +17,27 @@ public class StatMonitor{
     private boolean [] _msgBuf = null;
     private int _rotateIndex = 0;
     private int _wMsgCurCnt = 0;
-    private HashSet<String> intSet = null;
+    private HashSet<String> _intSet = null;
 
     public StatMonitor(){
         this._msgBuf = new boolean[MSG_BUF_LEN];
-        intSet = new HashSet<String>;
+        _intSet = new HashSet<String>();
     }
 
-    public void reportMsg(boolean isWrong){
+    public synchronized void reportMsg(boolean isWrong){
         ++_aMsg;
         if(isWrong){
             ++_wMsg;
             ++_wMsgCurCnt;
         }
-        if(msgBuf[_rotateIndex]){
+        if(_msgBuf[_rotateIndex]){
             --_wMsgCurCnt;
         }
-        msgBuf[_rotateIndex] = isWrong;
+        _msgBuf[_rotateIndex] = isWrong;
         _rotateIndex = (_rotateIndex + 1) % MSG_BUF_LEN;
     }
 
-    public void reportFace(boolean isCreate){
+    public synchronized void reportFace(boolean isCreate){
         if(isCreate){
             ++_faceCnt;
         }
@@ -49,7 +47,7 @@ public class StatMonitor{
         _hMem = _faceCnt * FACE_MEM;
     }
 
-    public int reportInterest(String name){
+    public synchronized int reportInterest(String name){
         if(_intSet.contains(name)){
             return 0;
         }
@@ -62,7 +60,7 @@ public class StatMonitor{
 
         while(lastIndex != -1){
 
-            lastIndex = str.indexOf("/",lastIndex);
+            lastIndex = name.indexOf("/",lastIndex);
 
             if( lastIndex != -1){
                 count ++;
@@ -87,23 +85,23 @@ public class StatMonitor{
         return allMem;
     }
 
-    public int getAllMsg(){
+    public synchronized int getAllMsg(){
         return _aMsg;
     }
 
-    public int getWrongMsg(){
+    public synchronized int getWrongMsg(){
         return _wMsg;
     }
 
-    public int getHermesMem(){
+    public synchronized int getHermesMem(){
         return _hMem;
     }
 
-    public int getCCNxMem(){
+    public synchronized int getCCNxMem(){
         return _cMem * 8;
     }
 
-    public double getOverallFP(){
+    public synchronized double getOverallFP(){
         if(0 == _aMsg){
             return 0;
         }
@@ -112,7 +110,7 @@ public class StatMonitor{
         }
     }
 
-    public double getCurrentFP(){
+    public synchronized double getCurrentFP(){
         return _wMsgCurCnt / MSG_BUF_LEN;
     }
 }
