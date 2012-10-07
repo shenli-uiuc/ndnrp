@@ -5,6 +5,7 @@ public class Protocol{
     public static final int SERVER_PORT = 20480;
     public static final String ENCODING = "UTF-16LE";
     public static final int SERVER_DELAY = 1000;
+    public static final int HERMES_REFRESH_INTERVAL = 10 * 60 * 1000;
 
     public static final String LIGHT_POST_PREFIX = "ccnx:/ndnrp/light/post/";
     public static final String LIGHT_BOT_POST_PREFIX = "ccnx:/ndnrp/light/bot/post/";

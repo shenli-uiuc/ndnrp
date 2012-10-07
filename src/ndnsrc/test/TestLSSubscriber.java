@@ -15,7 +15,8 @@ public class TestLSSubscriber{
         catch(Exception ex){
             ex.printStackTrace();
         }
-        LSSubscriber subscriber = new LSSubscriber(args[0], handle);
+        StatMonitor sm = new StatMonitor();
+        LSSubscriber subscriber = new LSSubscriber(args[0], handle, sm);
         for(i = 1; i < args.length; ++i){
             subscriber.subscribe(args[i]);
         }

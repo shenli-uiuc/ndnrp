@@ -184,7 +184,7 @@ public class StatPanel extends JPanel{
             }
 
             _mb = new MasterBot(botNum, BotConfig.MIN_WAIT, BotConfig.MAX_WAIT,
-                    handle, _ip, _port);
+                    handle, _ip, _port, _statMonitor);
             _mb.start();
             
             _rth = new RefreshThread();

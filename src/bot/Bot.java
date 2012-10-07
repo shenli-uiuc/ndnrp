@@ -28,15 +28,17 @@ public class Bot extends Thread{
     private String _name = null;
     private Random _rnd = null;
     private char [] _charBuf = null;
+    private StatMonitor _statMonitor = null;
 
     private boolean _isRunning = false;
 
     public Bot(String ip, int port, int id, 
-                int minWait, int maxWait, CCNHandle handle){
+                int minWait, int maxWait, CCNHandle handle, StatMonitor statMonitor){
         this._handle = handle;
         this._ip = ip;
         this._port = port;
         this._id = id;
+        this._statMonitor = statMonitor;
         this._name = BotConfig.NAME_PREFIX + _id;
         this._minWait = minWait;
         this._maxWait = maxWait;
@@ -44,7 +46,7 @@ public class Bot extends Thread{
         this._rnd = new Random(id);        
         this._charBuf = new char[MAX_STR_LEN];
 
-        this._lsSub = new LSSubscriber(_name, _handle);
+        this._lsSub = new LSSubscriber(_name, _handle, _statMonitor);
         this._ipSub = new IPClient(_ip, _port, _name, IPClient.PUBLISHER);
     }
 

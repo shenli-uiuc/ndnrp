@@ -18,7 +18,8 @@ public class TestBotSub{
         try{
             IPClient ipSub = new IPClient(Protocol.SERVER_IP, Protocol.SERVER_PORT,
                     NAME, IPClient.SUBSCRIBER);
-            LSSubscriber lsSub = new LSSubscriber(NAME, CCNHandle.open());
+            StatMonitor sm = new StatMonitor();
+            LSSubscriber lsSub = new LSSubscriber(NAME, CCNHandle.open(), sm);
             for(int i = 0; i < TestBot.BOT_NUM; ++i){
                 ipSub.subscribe(BotConfig.NAME_PREFIX + i);
                 lsSub.subscribe(BotConfig.NAME_PREFIX + i);

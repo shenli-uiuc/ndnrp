@@ -13,8 +13,10 @@ public class MasterBot{
     private int _port = 0;
     private CCNHandle _handle = null;
     private Bot [] _bots = null;
+    private StatMonitor _statMonitor = null;
 
-    public MasterBot(int botNum, int minWait, int maxWait, CCNHandle handle, String ip, int port){
+    public MasterBot(int botNum, int minWait, int maxWait, 
+                        CCNHandle handle, String ip, int port, StatMonitor statMonitor){
         this._botNum = botNum;
         this._minWait = minWait;
         this._maxWait = maxWait;
@@ -22,12 +24,13 @@ public class MasterBot{
         this._bots = new Bot[_botNum];
         this._ip = ip;
         this._port = port;
+        this._statMonitor = statMonitor;
     }
 
     public void start(){
         for(int i = 0 ; i < _botNum; ++i){
             _bots[i] = new Bot(_ip, _port, i,
-                            _minWait, _maxWait, _handle);
+                            _minWait, _maxWait, _handle, _statMonitor);
             _bots[i].setDaemon(true);
             _bots[i].on();
         }
@@ -38,6 +41,4 @@ public class MasterBot{
             _bots[i].off();
         } 
     }
-
-    
 }

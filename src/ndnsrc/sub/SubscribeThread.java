@@ -23,16 +23,20 @@ import java.io.IOException;
 public class SubscribeThread extends Thread{
 
     private String _name = null;
+    private String _fullName = null;
     private CCNHandle _handle = null;
     private LinkedBlockingQueue _lbq = null;
     private CCNReader _reader = null;
     private boolean _isRunning = false;
     private StrValidator _strValidator = null;
+    private StatMonitor _statMonitor = null;
 
-    public SubscribeThread(String name, CCNHandle handle, LinkedBlockingQueue lbq){
+    public SubscribeThread(String name, CCNHandle handle, LinkedBlockingQueue lbq, StatMonitor statMonitor){
         this._name = name;
+        this._fullName = Protocol.LIGHT_PUB_PREFIX + _name;
         this._handle = handle;
         this._lbq = lbq;
+        this._statMonitor = statMonitor;
         this._strValidator = new StrValidator();
 
         try{
@@ -53,6 +57,7 @@ public class SubscribeThread extends Thread{
     public void run(){
         String curMsg = null;
         _isRunning = true;
+        _statMonitor.reportInterest(_fullName);
         while(_isRunning){
             curMsg = receive();
             if(null == curMsg){
@@ -77,7 +82,7 @@ public class SubscribeThread extends Thread{
 
     private String receive(){
         try{
-            ContentName contentName = ContentName.fromURI(Protocol.LIGHT_PUB_PREFIX + _name);
+            ContentName contentName = ContentName.fromURI(_fullName);
             Interest interest = new Interest(contentName);
             System.out.println("**************" + contentName.toURIString());
             //every receive waits for only 5 seconds, cause we gonna need to stop this thread in the middle of execution

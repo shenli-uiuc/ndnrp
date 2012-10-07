@@ -4,7 +4,7 @@ import java.util.*;
 
 public class StatMonitor{
     public static final int MSG_BUF_LEN = 1000;
-    public static final int FACE_MEM = 2500;
+    public static final int FACE_MEM = 8000;
     public static final int EXTRA_NAME_LEN = 30;
 
     private int _aMsg = 0;

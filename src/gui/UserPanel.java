@@ -261,7 +261,7 @@ public class UserPanel extends JPanel{
                         "The user name connat be empty", "Info", JOptionPane.INFORMATION_MESSAGE);
                 return;
             }
-            _lsSub = new LSSubscriber(name, _lsHandle);
+            _lsSub = new LSSubscriber(name, _lsHandle, _statMonitor);
             _ipSub = new IPClient(_ip, _port, name, 
                                     (IPClient.SUBSCRIBER | IPClient.PUBLISHER));
             _lsRec = new LSRecThread();
@@ -278,6 +278,7 @@ public class UserPanel extends JPanel{
             _ipBotTh.setDaemon(true);
             _lsBotTh.start();
             _ipBotTh.start();
+            _statMonitor.reportFace(true);
         }
     }
 

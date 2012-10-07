@@ -22,13 +22,15 @@ public class SubscribeBotThread extends Thread{
     private HashSet<String> _subSet = null;
     private boolean _isRunning = false;
     private StrValidator _strValidator = null;
+    private StatMonitor _statMonitor = null;
     //private FPCounter _fpc = null;
 
     public SubscribeBotThread(CCNHandle handle, LinkedBlockingQueue lbq, 
-                HashSet<String> subSet){
+                HashSet<String> subSet, StatMonitor statMonitor){
         this._handle = handle;
         this._lbq = lbq;
         this._subSet = subSet;
+        this._statMonitor = statMonitor;
         this._strValidator = new StrValidator();
         //this._fpc = fpc;
 
@@ -45,12 +47,19 @@ public class SubscribeBotThread extends Thread{
     }
 
     public synchronized boolean subscribe(String name){
+        /*
+        // This if block is removed because we will use this method for refreshing
         if(_subSet.contains(name)){
             //already subscribing to the name
             return false;
         }
-        _subSet.add(name);
-        SendThread st = new SendThread(Protocol.LIGHT_BOT_SUB_PREFIX + name);
+        */
+        if(!_subSet.contains(name)){
+            _subSet.add(name);
+        }
+        String fullName = Protocol.LIGHT_BOT_SUB_PREFIX + name;
+        _statMonitor.reportInterest(fullName);
+        SendThread st = new SendThread(fullName);
         st.setDaemon(true);
         st.start();
         return true;
@@ -58,7 +67,27 @@ public class SubscribeBotThread extends Thread{
 
     // This thread will refresh the interest for publishers in _subSet
     private class RefreshThread extends Thread{
+        private void refreshAll(){
+            Iterator it = _subSet.iterator();
+
+            String name = null;
+            while(it.hasNext()){
+                name = (String)it.next();
+                subscribe(name);
+            } 
+        }
+
         public void run(){
+            int refreshInterval = Math.max(1000, Protocol.HERMES_REFRESH_INTERVAL - 1000 * 60);
+            try{
+                while(true){
+                    Thread.sleep(refreshInterval);
+                    refreshAll();
+                }
+            }
+            catch(InterruptedException ex){
+                ex.printStackTrace();
+            }
         }
     }
 
@@ -113,10 +142,13 @@ public class SubscribeBotThread extends Thread{
                 continue;
             }
             try{
-                if(_subSet.contains(msgItem.getPublisher())){
-                    //TODO: inc fpc.fp
+                if(!_subSet.contains(msgItem.getPublisher())){
+                    //fp, isWrong == true
+                    _statMonitor.reportMsg(true);
                 }
-                //TODO: inc fpc.all
+                else{
+                    _statMonitor.reportMsg(false);
+                }
                 _lbq.put(msgItem);
             }
             catch(InterruptedException ex){

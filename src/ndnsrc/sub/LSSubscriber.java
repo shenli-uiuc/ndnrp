@@ -39,15 +39,17 @@ public class LSSubscriber {
     private ArrayList<SubscribeThread> _threadList = null;
     private StrValidator _strValidator = null;
     private SubscribeBotThread _sbt = null;
+    private StatMonitor _statMonitor = null;
 
-    public LSSubscriber(String name, CCNHandle handle){
+    public LSSubscriber(String name, CCNHandle handle, StatMonitor statMonitor){
         this._handle = handle;
         this._name = name;
+        this._statMonitor = statMonitor;
         this._subSet = new HashSet<String>();
         this._lbq = new LinkedBlockingQueue<MsgItem>();
         this._threadList = new ArrayList<SubscribeThread>();
         this._strValidator = new StrValidator();
-        this._sbt = new SubscribeBotThread(_handle, _lbq, _subSet);
+        this._sbt = new SubscribeBotThread(_handle, _lbq, _subSet, _statMonitor);
     } 
 
     public synchronized boolean isSubscribing(String name){
@@ -60,7 +62,7 @@ public class LSSubscriber {
             return false;
         }
         _subSet.add(name);
-        SubscribeThread st = new SubscribeThread(name, _handle, _lbq);
+        SubscribeThread st = new SubscribeThread(name, _handle, _lbq, _statMonitor);
         _threadList.add(st);
         st.setDaemon(true);
         st.start();
@@ -109,7 +111,8 @@ public class LSSubscriber {
 
     public static void main(String argv[]){
         try{
-            LSSubscriber subscriber = new LSSubscriber("Bob", CCNHandle.open());
+            StatMonitor statMonitor = new StatMonitor();
+            LSSubscriber subscriber = new LSSubscriber("Bob", CCNHandle.open(), statMonitor);
             subscriber.subscribe("Alice");
             while(true){
                 System.out.println(subscriber.receive());
