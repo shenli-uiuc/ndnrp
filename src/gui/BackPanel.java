@@ -16,9 +16,10 @@ public class BackPanel extends JPanel{
     public static final int H_SPACE = 7;
 
     public static final int WIDTH = (UserPanel.WIDTH + H_SPACE) * USER_NUM + H_SPACE;
-    public static final int HEIGHT = UserPanel.HEIGHT + 2 * V_SPACE;
+    public static final int HEIGHT = UserPanel.HEIGHT + StatPanel.HEIGHT + 2 * V_SPACE;
 
     private UserPanel [] _userPanels = null;
+    private StatPanel _statPanel = null;
     private String _ip = null;
     private int _port = 0;
 
@@ -32,11 +33,15 @@ public class BackPanel extends JPanel{
         _userPanels = new UserPanel[USER_NUM];
         for(int i = 0 ; i < USER_NUM; ++i){
             _userPanels[i] = new UserPanel(_ip, _port);
-            _userPanels[i].setBounds(H_SPACE + i * (H_SPACE + UserPanel.WIDTH), V_SPACE, 
+            _userPanels[i].setBounds(H_SPACE + i * (H_SPACE + UserPanel.WIDTH), 2 * V_SPACE + StatPanel.HEIGHT, 
                                                 UserPanel.WIDTH, UserPanel.HEIGHT);
             this.add(_userPanels[i]);
         }
-        
+
+        _statPanel = new StatPanel(_ip, _port);
+        _statPanel.setBounds(H_SPACE, V_SPACE, StatPanel.WIDTH, StatPanel.HEIGHT);
+        this.add(_statPanel);
+
         this.repaint();
     }
 

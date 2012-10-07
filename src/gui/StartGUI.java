@@ -17,7 +17,7 @@ import java.lang.Math;
 
 public class StartGUI{
     public static final int EDGE_WIDTH = 2;
-    public static final int HEAD_HEIGHT = 30;
+    public static final int HEAD_HEIGHT = 15;
 
     public static void main(String args[]){
         JFrame jf = new JFrame();
@@ -27,16 +27,6 @@ public class StartGUI{
         jf.setSize(bp.WIDTH + EDGE_WIDTH, bp.HEIGHT + HEAD_HEIGHT);
         jf.setResizable(false);
         jf.setVisible(true);
-        try{
-            MasterBot mb = new MasterBot(BotConfig.NUM, BotConfig.MIN_WAIT, BotConfig.MAX_WAIT, CCNHandle.open());
-            mb.start();
-        }
-        catch(ConfigurationException ex){
-            ex.printStackTrace();
-        }
-        catch(IOException ex){
-            ex.printStackTrace();
-        }
     }
 
 

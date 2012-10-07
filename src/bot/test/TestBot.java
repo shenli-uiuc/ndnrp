@@ -1,6 +1,7 @@
 package ndnrp.bot.test;
 
 import ndnrp.bot.*;
+import ndnrp.protocol.*;
 
 import org.ccnx.ccn.CCNHandle;
 import org.ccnx.ccn.config.ConfigurationException;
@@ -12,7 +13,8 @@ public class TestBot{
 
     public static void main(String args[]){
         try{
-            MasterBot mb = new MasterBot(BOT_NUM, BOT_NUM, BOT_NUM * 2, CCNHandle.open());
+            MasterBot mb = new MasterBot(BOT_NUM, BOT_NUM, BOT_NUM * 2, CCNHandle.open(),
+                                    Protocol.SERVER_IP, Protocol.SERVER_PORT);
             mb.start();
         }
         catch(ConfigurationException ex){
