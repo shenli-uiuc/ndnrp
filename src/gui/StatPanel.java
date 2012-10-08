@@ -216,6 +216,9 @@ public class StatPanel extends JPanel{
                                                 "Info", JOptionPane.INFORMATION_MESSAGE);
                 return;
             }
+            _botConf.setNum(botNum);
+            _botConf.setMinWait(minWait);
+            _botConf.setMaxWait(maxWait);
             _mb = new MasterBot(botNum, minWait, maxWait,
                     handle, _ip, _port, _statMonitor);
             _mb.start();
@@ -266,7 +269,8 @@ public class StatPanel extends JPanel{
         JFrame jf = new JFrame();
         jf.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         StatMonitor sm = new StatMonitor();
-        StatPanel sp = new StatPanel(Protocol.SERVER_IP, Protocol.SERVER_PORT, sm);
+        BotConfig bc = new BotConfig();
+        StatPanel sp = new StatPanel(Protocol.SERVER_IP, Protocol.SERVER_PORT, sm, bc);
         jf.add(sp);
         jf.setSize(sp.WIDTH, sp.HEIGHT);
         jf.setResizable(false);
