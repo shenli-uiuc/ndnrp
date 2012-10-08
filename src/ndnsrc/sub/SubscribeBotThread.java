@@ -78,7 +78,7 @@ public class SubscribeBotThread extends Thread{
         }
 
         public void run(){
-            int refreshInterval = Math.max(1000, Protocol.HERMES_REFRESH_INTERVAL - 1000 * 60);
+            int refreshInterval = Math.max(2000, Protocol.HERMES_REFRESH_INTERVAL - 1000 * 60);
             try{
                 while(true){
                     Thread.sleep(refreshInterval);

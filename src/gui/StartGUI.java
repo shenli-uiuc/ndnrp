@@ -17,7 +17,7 @@ import java.lang.Math;
 
 public class StartGUI{
     public static final int EDGE_WIDTH = 2;
-    public static final int HEAD_HEIGHT = 15;
+    public static final int HEAD_HEIGHT = 30;
 
     public static void main(String args[]){
         JFrame jf = new JFrame();

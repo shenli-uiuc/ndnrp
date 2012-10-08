@@ -85,11 +85,13 @@ public class UserPanel extends JPanel{
     private IPSubBotThread _ipBotTh = null;
 
     private StatMonitor _statMonitor = null;
+    private BotConfig _botConf = null;
 
-    public UserPanel(String ip, int port, StatMonitor statMonitor){
+    public UserPanel(String ip, int port, StatMonitor statMonitor, BotConfig botConf){
         this._ip = ip;
         this._port = port;
         this._statMonitor = statMonitor;
+        this._botConf = botConf;
         try{
             _lsHandle = CCNHandle.open();
             //_hsHandle = CCNHandle.open();
@@ -272,13 +274,15 @@ public class UserPanel extends JPanel{
             _lsRec.start();
             _ipRec.start();
 
-            _lsBotTh = new LSSubBotThread(_lsSub, BotConfig.NUM);
-            _ipBotTh = new IPSubBotThread(_ipSub, BotConfig.NUM);
+            _lsBotTh = new LSSubBotThread(_lsSub, _botConf.getNum());
+            _ipBotTh = new IPSubBotThread(_ipSub, _botConf.getNum());
             _lsBotTh.setDaemon(true);
             _ipBotTh.setDaemon(true);
             _lsBotTh.start();
             _ipBotTh.start();
+            System.out.println("beofre report Face");
             _statMonitor.reportFace(true);
+            System.out.println("name started");
         }
     }
 
@@ -388,7 +392,8 @@ public class UserPanel extends JPanel{
         JFrame jf = new JFrame();
         jf.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         StatMonitor sm = new StatMonitor();
-        UserPanel up = new UserPanel(Protocol.SERVER_IP, Protocol.SERVER_PORT, sm);
+        BotConfig bc = new BotConfig();
+        UserPanel up = new UserPanel(Protocol.SERVER_IP, Protocol.SERVER_PORT, sm, bc);
         jf.add(up);
         jf.setSize(up.WIDTH, up.HEIGHT);
         jf.setResizable(false);

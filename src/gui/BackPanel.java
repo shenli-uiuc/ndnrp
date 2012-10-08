@@ -2,6 +2,7 @@ package ndnrp.gui;
 
 import ndnrp.protocol.*;
 import ndnrp.util.*;
+import ndnrp.bot.*;
 
 import javax.swing.*;
 import java.awt.*;
@@ -23,24 +24,26 @@ public class BackPanel extends JPanel{
     private String _ip = null;
     private int _port = 0;
     private StatMonitor _statMonitor = null;
+    private BotConfig _botConf = null;
 
     public BackPanel(String ip, int port){
         this._ip = ip;
         this._port = port;
         this._statMonitor = new StatMonitor();
+        this._botConf = new BotConfig();
 
         this.setLayout(null);
         this.setPreferredSize(new Dimension(WIDTH, HEIGHT));
 
         _userPanels = new UserPanel[USER_NUM];
         for(int i = 0 ; i < USER_NUM; ++i){
-            _userPanels[i] = new UserPanel(_ip, _port, _statMonitor);
+            _userPanels[i] = new UserPanel(_ip, _port, _statMonitor, _botConf);
             _userPanels[i].setBounds(H_SPACE + i * (H_SPACE + UserPanel.WIDTH), 2 * V_SPACE + StatPanel.HEIGHT, 
                                                 UserPanel.WIDTH, UserPanel.HEIGHT);
             this.add(_userPanels[i]);
         }
 
-        _statPanel = new StatPanel(_ip, _port, _statMonitor);
+        _statPanel = new StatPanel(_ip, _port, _statMonitor, _botConf);
         _statPanel.setBounds(H_SPACE, V_SPACE, StatPanel.WIDTH, StatPanel.HEIGHT);
         this.add(_statPanel);
 

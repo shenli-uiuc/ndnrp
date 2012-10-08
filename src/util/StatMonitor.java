@@ -51,57 +51,58 @@ public class StatMonitor{
         if(_intSet.contains(name)){
             return 0;
         }
-        int allMem = 0;
+        //0. DTags for interest
+        int allMem = 4;
         
         allMem += (name.length() + EXTRA_NAME_LEN);
         //1. comps
         int lastIndex = 0;
         int count =0;
-
+        
+        System.out.println("Start with while in StatMonitor.reportInterest: " + name);
         while(lastIndex != -1){
 
             lastIndex = name.indexOf("/",lastIndex);
-
+            System.out.println("lastIndex = " + lastIndex);
             if( lastIndex != -1){
-                count ++;
+                ++count;
+                ++lastIndex;
             }
         }
-        allMem += (count * 4);
+        System.out.println("Done with while in StatMonitor.reportInterest: " + name);
+        //comps + DTags
+        allMem += (count * 8);
 
         //2. interest_entry
-        //2.1 ielinks
-        allMem += 16;
-        //2.2 strategy
-        allMem += 24;
-        //2.2 pit_face_item
-        allMem += (28 + 12);
-        //2.3 ccn_scheduled_event
-        allMem += 16;
-        //2.- others
-        allMem += 20;
+        //2.1 ielinks: 16
+        //2.2 strategy: 24
+        //2.2 pit_face_item: 40
+        //2.3 ccn_scheduled_event: 16
+        //2.- others: 20
+        allMem += 116;
 
         _cMem += allMem;
 
         return allMem;
     }
 
-    public synchronized int getAllMsg(){
+    public int getAllMsg(){
         return _aMsg;
     }
 
-    public synchronized int getWrongMsg(){
+    public int getWrongMsg(){
         return _wMsg;
     }
 
-    public synchronized int getHermesMem(){
+    public int getHermesMem(){
         return _hMem;
     }
 
-    public synchronized int getCCNxMem(){
+    public int getCCNxMem(){
         return _cMem * 8;
     }
 
-    public synchronized double getOverallFP(){
+    public double getOverallFP(){
         if(0 == _aMsg){
             return 0;
         }
@@ -110,7 +111,7 @@ public class StatMonitor{
         }
     }
 
-    public synchronized double getCurrentFP(){
+    public double getCurrentFP(){
         return _wMsgCurCnt / MSG_BUF_LEN;
     }
 }

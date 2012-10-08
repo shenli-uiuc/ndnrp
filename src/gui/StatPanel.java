@@ -30,11 +30,12 @@ public class StatPanel extends JPanel{
     public static final int BUTTON_WIDTH = LABEL_WIDTH;
     public static final int BUTTON_HEIGHT = LABEL_HEIGHT;
     public static final int V_SPACE = 5;
-    public static final int H_SPACE = (WIDTH - (4 * LABEL_WIDTH)) / 5;
+    public static final int H_SPACE = (WIDTH - (5 * LABEL_WIDTH)) / 6;
 
     public static final int REFRESH_INTERVAL = 1000;
 
     private StatMonitor _statMonitor = null;
+    private BotConfig _botConf = null;
     private MasterBot _mb = null;
     private RefreshThread _rth = null;
 
@@ -59,14 +60,21 @@ public class StatPanel extends JPanel{
     private Label _cFPLabel = null;
     private TextField _cFPField = null;
 
+    private Label _minWaitLabel = null;
+    private TextField _minWaitField = null;
+
+    private Label _maxWaitLabel = null;
+    private TextField _maxWaitField = null;
+
     private Label _botLabel = null;
     private TextField _botField = null;
     private JButton _botButton = null;
 
-    public StatPanel(String ip, int port, StatMonitor statMonitor){
+    public StatPanel(String ip, int port, StatMonitor statMonitor, BotConfig botConf){
         this._ip = ip;
         this._port = port;
         this._statMonitor = statMonitor;
+        this._botConf = botConf;
         initGUI();
     }
 
@@ -92,11 +100,16 @@ public class StatPanel extends JPanel{
         _oFPField.setBounds(H_SPACE + 2 * (H_SPACE + LABEL_WIDTH), V_SPACE + LABEL_HEIGHT,
                                     LABEL_WIDTH, LABEL_HEIGHT);
 
-        
+        _minWaitLabel = new Label("Min Bot Wait (s):");
+        _minWaitField = new TextField();
+        _minWaitLabel.setBounds(H_SPACE + 3 * (H_SPACE + LABEL_WIDTH), V_SPACE, LABEL_WIDTH, LABEL_HEIGHT);
+        _minWaitField.setBounds(H_SPACE + 3 * (H_SPACE + LABEL_WIDTH), V_SPACE + LABEL_HEIGHT,
+                                    LABEL_WIDTH, LABEL_HEIGHT);        
+
         _botLabel = new Label("Bot Number:");
         _botField = new TextField();
-        _botLabel.setBounds(H_SPACE + 3 * (H_SPACE + LABEL_WIDTH), V_SPACE, LABEL_WIDTH, LABEL_HEIGHT);
-        _botField.setBounds(H_SPACE + 3 * (H_SPACE + LABEL_WIDTH), V_SPACE + LABEL_HEIGHT,
+        _botLabel.setBounds(H_SPACE + 4 * (H_SPACE + LABEL_WIDTH), V_SPACE, LABEL_WIDTH, LABEL_HEIGHT);
+        _botField.setBounds(H_SPACE + 4 * (H_SPACE + LABEL_WIDTH), V_SPACE + LABEL_HEIGHT,
                                     LABEL_WIDTH, LABEL_HEIGHT);
 
         _hMemLabel = new Label("Hermes Memory:");
@@ -119,8 +132,15 @@ public class StatPanel extends JPanel{
         _cFPField.setBounds(H_SPACE + 2 * (H_SPACE + LABEL_WIDTH), 2 * (V_SPACE + LABEL_HEIGHT) + LABEL_HEIGHT,
                                     LABEL_WIDTH, LABEL_HEIGHT);
 
+        _maxWaitLabel = new Label("Max Bot Wait (s):");
+        _maxWaitField = new TextField();
+        _maxWaitLabel.setBounds(H_SPACE + 3 * (H_SPACE + LABEL_WIDTH), 2 * (V_SPACE + LABEL_HEIGHT),
+                                    LABEL_WIDTH, LABEL_HEIGHT);
+        _maxWaitLabel.setBounds(H_SPACE + 3 * (H_SPACE + LABEL_WIDTH), 2 * (V_SPACE + LABEL_HEIGHT) + LABEL_HEIGHT,
+                                    LABEL_WIDTH, LABEL_HEIGHT);
+
         _botButton = new JButton("Start Bots");
-        _botButton.setBounds(H_SPACE + 3 * (H_SPACE + LABEL_WIDTH), 2 * (V_SPACE + LABEL_HEIGHT) + LABEL_HEIGHT,
+        _botButton.setBounds(H_SPACE + 4 * (H_SPACE + LABEL_WIDTH), 2 * (V_SPACE + LABEL_HEIGHT) + LABEL_HEIGHT,
                                     LABEL_WIDTH, LABEL_HEIGHT);
         _botButton.addActionListener(new BotButtonListener());
 
@@ -139,6 +159,10 @@ public class StatPanel extends JPanel{
         this.add(_botLabel);
         this.add(_botField);
         this.add(_botButton);
+        this.add(_minWaitLabel);
+        this.add(_minWaitField);
+        this.add(_maxWaitLabel);
+        this.add(_maxWaitField);
         
         this.setBorder(new LineBorder(Color.WHITE, 2, true));
 
@@ -165,9 +189,15 @@ public class StatPanel extends JPanel{
             }
 
             String strBotNum = _botField.getText();
+            String strMinWait = _minWaitField.getText();
+            String strMaxWait = _maxWaitField.getText();
             int botNum = 0;
+            int minWait = 0;
+            int maxWait = 0;
             try{
                 botNum = Integer.parseInt(strBotNum);
+                minWait = Integer.parseInt(strMinWait) * 1000;
+                maxWait = Integer.parseInt(strMaxWait) * 1000;
             }
             catch(NumberFormatException ex){
                 ex.printStackTrace();
@@ -179,11 +209,14 @@ public class StatPanel extends JPanel{
             if(botNum <= 0){
                 JOptionPane.showMessageDialog(null, "Please input a positive integer as bot number. Now botNum = " + botNum, 
                                                 "Info", JOptionPane.INFORMATION_MESSAGE);
-
                 return;
             }
-
-            _mb = new MasterBot(botNum, BotConfig.MIN_WAIT, BotConfig.MAX_WAIT,
+            else if(minWait <= 0 || maxWait <= 0 || minWait < maxWait){
+                JOptionPane.showMessageDialog(null, "Illegal waiting time",
+                                                "Info", JOptionPane.INFORMATION_MESSAGE);
+                return;
+            }
+            _mb = new MasterBot(botNum, minWait, maxWait,
                     handle, _ip, _port, _statMonitor);
             _mb.start();
             
@@ -220,6 +253,8 @@ public class StatPanel extends JPanel{
                     Thread.sleep(REFRESH_INTERVAL);
                 }
                 catch(InterruptedException ex){
+                    JOptionPane.showMessageDialog(null,
+                        "Refresh thread error!", "Info", JOptionPane.INFORMATION_MESSAGE);
                     ex.printStackTrace();
                     return;
                 }
