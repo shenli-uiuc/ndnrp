@@ -10,10 +10,10 @@ import java.util.*;
 public class IPSubHandler extends Thread{
     public static final int BUF_LEN = 1024;
     private Socket _socket = null;
-    private Hashtable<String, HashSet<String> > _followMap = null;
+    private Hashtable<String, Set > _followMap = null;
     private byte[] _buf = null;
 
-    public IPSubHandler(Socket socket, Hashtable<String, HashSet<String> > followMap){
+    public IPSubHandler(Socket socket, Hashtable<String, Set > followMap){
         this._socket = socket;
         this._followMap = followMap;
         this._buf = new byte[BUF_LEN];
@@ -31,6 +31,8 @@ public class IPSubHandler extends Thread{
                     System.out.println("In IPSubHandler.run: buffer overflow");
                     return;
                 }
+                if(cnt <= 0)
+                    continue;
                 msg = new String(_buf, 0, cnt, Protocol.ENCODING);
                 if(msg.substring(0, Protocol.HEAVY_SUB_PREFIX.length()).equals(Protocol.HEAVY_SUB_PREFIX)){
                     //someone is subscribing to a publisher
@@ -57,7 +59,7 @@ public class IPSubHandler extends Thread{
         String sub = data.substring(0, splitIndex);
         String pub = data.substring(splitIndex + 1, data.length());
 
-        HashSet<String> subSet = _followMap.get(pub);
+        Set subSet = _followMap.get(pub);
         if(null == subSet){
             return Protocol.PUB_NOT_EXIST;
         }
@@ -79,9 +81,9 @@ public class IPSubHandler extends Thread{
 
         System.out.println("Subscribing : " + sub + ", " + pub);
 
-        HashSet<String> subSet = _followMap.get(pub);
+        Set subSet = _followMap.get(pub);
         if(null == subSet){
-            subSet = new HashSet<String>();
+            subSet = Collections.synchronizedSet(new HashSet<String>());
             _followMap.put(pub, subSet);
         }
         if(subSet.contains(sub)){

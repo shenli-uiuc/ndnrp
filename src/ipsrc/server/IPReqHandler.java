@@ -6,17 +6,18 @@ import ndnrp.util.*;
 import java.net.*;
 import java.io.*;
 import java.util.*;
+import java.util.Collections.*;
 
 public class IPReqHandler extends Thread{
     private static final int BUF_LEN = 1024;
 
     private Socket _socket = null;
     private byte[] _buf = null;
-    private Hashtable<String, HashSet<String> > _followMap = null;
+    private Hashtable<String, Set > _followMap = null;
     private Hashtable<String, IPLiveUser> _userMap = null; 
 
     public IPReqHandler(Socket socket, 
-                        Hashtable<String, HashSet<String> >followMap, 
+                        Hashtable<String, Set >followMap, 
                         Hashtable<String, IPLiveUser> userMap){
         this._socket = socket;
         this._followMap = followMap;
@@ -70,12 +71,13 @@ public class IPReqHandler extends Thread{
         String sub = data.substring(0, splitIndex);
         String pub = data.substring(splitIndex + 1, data.length());
 
-        HashSet<String> subSet = _followMap.get(pub);
+        Set subSet = _followMap.get(pub);
         if(null == subSet){
             return Protocol.PUB_NOT_EXIST;
         }        
         else if(subSet.contains(sub)){
             //do unsubscribe
+            subSet = Collections.synchronizedSet(subSet);
             subSet.remove(sub);
             return Protocol.SUCCESS;
         }
@@ -91,16 +93,17 @@ public class IPReqHandler extends Thread{
         String pub = data.substring(0, splitIndex);
         String postMsg = data.substring(splitIndex + 1, data.length());
 
-        HashSet<String> subSet = _followMap.get(pub);
+        Set subSet = _followMap.get(pub);
         try{
             if(null == subSet){
-                subSet = new HashSet<String>();
+                subSet = Collections.synchronizedSet(new HashSet<String>());
                 _followMap.put(pub, subSet);
                 _socket.close();
                 _socket = null;
                 return Protocol.SUCCESS;
             }
             else{
+                subSet = Collections.synchronizedSet(subSet);
                 Iterator it = subSet.iterator();
                 String outMsg = pub + ": " + postMsg;
                 String sub = null;

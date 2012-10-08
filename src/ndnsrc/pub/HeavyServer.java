@@ -5,8 +5,7 @@ import ndnrp.protocol.*;
 
 import java.util.*;
 import java.lang.*;
-import org.ccnx.ccn.io.CCNVersionedOutputStream;
-
+import java.util.Collections.*;
 import java.io.*;
 import java.io.File;
 import java.io.FileInputStream;
@@ -41,11 +40,11 @@ public class HeavyServer implements CCNFilterListener{
     private Publisher _pub = null;
     private CCNWriter _writer = null;
 
-    private Hashtable<String, HashSet<String>> _pubSet = null; 
+    private Hashtable<String, Set> _pubSet = null; 
 
     public HeavyServer(){
 
-        _pubSet = new Hashtable<String, HashSet<String>>();
+        _pubSet = new Hashtable<String, Set>();
         try{
             _handle = CCNHandle.open();
             _pub = new Publisher(CCNHandle.open());
@@ -75,9 +74,9 @@ public class HeavyServer implements CCNFilterListener{
     }
 
     private synchronized String enrollSub(String publisher, String subscriber){
-        HashSet<String> subSet = _pubSet.get(publisher);
+        Set subSet = Collections.synchronizedSet(_pubSet.get(publisher));
         if(null == subSet){
-            subSet = new HashSet<String> ();
+            subSet = Collections.synchronizedSet(new HashSet<String> ());
             subSet.add(subscriber);
             _pubSet.put(publisher, subSet);
             return Protocol.SUCCESS;
@@ -92,7 +91,7 @@ public class HeavyServer implements CCNFilterListener{
     }
 
     private String propagatePost(String publisher, String msg){
-        HashSet<String> subSet = _pubSet.get(publisher);
+        Set subSet = Collections.synchronizedSet(_pubSet.get(publisher));
         if(null == subSet){
             return Protocol.PUB_NOT_EXIST;
         }
@@ -105,11 +104,11 @@ public class HeavyServer implements CCNFilterListener{
     }
 
     class PropagatePostThread extends Thread{
-        private HashSet<String> _subSet = null;
+        private Set _subSet = null;
         private String _publisher = null;
         private String _msg = null;
 
-        public PropagatePostThread(HashSet<String> subSet, String publisher, String msg){
+        public PropagatePostThread(Set subSet, String publisher, String msg){
             this._subSet = subSet;
             this._publisher = publisher;
             this._msg = msg;

@@ -136,7 +136,7 @@ public class StatPanel extends JPanel{
         _maxWaitField = new TextField();
         _maxWaitLabel.setBounds(H_SPACE + 3 * (H_SPACE + LABEL_WIDTH), 2 * (V_SPACE + LABEL_HEIGHT),
                                     LABEL_WIDTH, LABEL_HEIGHT);
-        _maxWaitLabel.setBounds(H_SPACE + 3 * (H_SPACE + LABEL_WIDTH), 2 * (V_SPACE + LABEL_HEIGHT) + LABEL_HEIGHT,
+        _maxWaitField.setBounds(H_SPACE + 3 * (H_SPACE + LABEL_WIDTH), 2 * (V_SPACE + LABEL_HEIGHT) + LABEL_HEIGHT,
                                     LABEL_WIDTH, LABEL_HEIGHT);
 
         _botButton = new JButton("Start Bots");
@@ -196,8 +196,8 @@ public class StatPanel extends JPanel{
             int maxWait = 0;
             try{
                 botNum = Integer.parseInt(strBotNum);
-                minWait = Integer.parseInt(strMinWait) * 1000;
-                maxWait = Integer.parseInt(strMaxWait) * 1000;
+                minWait = Integer.parseInt(strMinWait);
+                maxWait = Integer.parseInt(strMaxWait);
             }
             catch(NumberFormatException ex){
                 ex.printStackTrace();
@@ -211,7 +211,7 @@ public class StatPanel extends JPanel{
                                                 "Info", JOptionPane.INFORMATION_MESSAGE);
                 return;
             }
-            else if(minWait <= 0 || maxWait <= 0 || minWait < maxWait){
+            else if(minWait <= 0 || maxWait <= 0 || minWait > maxWait){
                 JOptionPane.showMessageDialog(null, "Illegal waiting time",
                                                 "Info", JOptionPane.INFORMATION_MESSAGE);
                 return;

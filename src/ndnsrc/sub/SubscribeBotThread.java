@@ -14,19 +14,20 @@ import org.ccnx.ccn.protocol.ContentObject;
 import java.io.*;
 import java.util.*;
 import java.util.concurrent.*;
+import java.util.Collections.*;
 
 public class SubscribeBotThread extends Thread{
     private CCNHandle _handle = null;
     private LinkedBlockingQueue _lbq = null;
     private CCNReader _reader = null;
-    private HashSet<String> _subSet = null;
+    private Set _subSet = null;
     private boolean _isRunning = false;
     private StrValidator _strValidator = null;
     private StatMonitor _statMonitor = null;
     //private FPCounter _fpc = null;
 
     public SubscribeBotThread(CCNHandle handle, LinkedBlockingQueue lbq, 
-                HashSet<String> subSet, StatMonitor statMonitor){
+                Set subSet, StatMonitor statMonitor){
         this._handle = handle;
         this._lbq = lbq;
         this._subSet = subSet;

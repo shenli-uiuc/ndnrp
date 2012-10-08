@@ -1,6 +1,7 @@
 package ndnrp.util;
 
 import java.util.*;
+import java.util.Collections.*;
 
 public class StatMonitor{
     public static final int MSG_BUF_LEN = 1000;
@@ -17,11 +18,11 @@ public class StatMonitor{
     private boolean [] _msgBuf = null;
     private int _rotateIndex = 0;
     private int _wMsgCurCnt = 0;
-    private HashSet<String> _intSet = null;
+    private Set _intSet = null;
 
     public StatMonitor(){
         this._msgBuf = new boolean[MSG_BUF_LEN];
-        _intSet = new HashSet<String>();
+        _intSet = Collections.synchronizedSet(new HashSet<String>());
     }
 
     public synchronized void reportMsg(boolean isWrong){
@@ -59,17 +60,14 @@ public class StatMonitor{
         int lastIndex = 0;
         int count =0;
         
-        System.out.println("Start with while in StatMonitor.reportInterest: " + name);
         while(lastIndex != -1){
 
             lastIndex = name.indexOf("/",lastIndex);
-            System.out.println("lastIndex = " + lastIndex);
             if( lastIndex != -1){
                 ++count;
                 ++lastIndex;
             }
         }
-        System.out.println("Done with while in StatMonitor.reportInterest: " + name);
         //comps + DTags
         allMem += (count * 8);
 
@@ -107,11 +105,11 @@ public class StatMonitor{
             return 0;
         }
         else{
-            return _wMsg / _aMsg;
+            return _wMsg / (double)(_aMsg);
         }
     }
 
     public double getCurrentFP(){
-        return _wMsgCurCnt / MSG_BUF_LEN;
+        return _wMsgCurCnt / (double)(MSG_BUF_LEN);
     }
 }

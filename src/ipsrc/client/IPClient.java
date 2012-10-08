@@ -6,6 +6,7 @@ import ndnrp.util.*;
 import java.net.*;
 import java.io.*;
 import java.util.*;
+import java.util.Collections.*;
 
 public class IPClient{
     public static final int PUBLISHER = 1;
@@ -16,7 +17,7 @@ public class IPClient{
     private int _port = 0;
     private int _type = 0;
     private String _name = null;
-    private HashSet<String> _subSet = null;
+    private Set _subSet = null;
     private Socket _socket = null;
 
     private byte[] _buf = null;
@@ -26,7 +27,7 @@ public class IPClient{
         this._port = port;
         this._type = type;
         this._name = name;
-        this._subSet = new HashSet<String>();
+        this._subSet = Collections.synchronizedSet(new HashSet<String>());
         this._buf = new byte[BUF_LEN];
         if((type & SUBSCRIBER) > 0){
             this._socket = getSocket();
@@ -117,7 +118,12 @@ public class IPClient{
                 System.out.println("In IPClient.listen: _buf overflow");
                 return null;
             }
-            return new String(_buf, 0, cnt, Protocol.ENCODING);
+            if(cnt > 0){
+                return new String(_buf, 0, cnt, Protocol.ENCODING);
+            }
+            else{
+                return null;
+            }           
         }
         catch(IOException ex){
             ex.printStackTrace();

@@ -6,6 +6,7 @@ import ndnrp.protocol.*;
 import java.util.*;
 import java.sql.Timestamp;
 import java.util.concurrent.*;
+import java.util.Collections.*;
 
 import java.io.*;
 import java.io.File;
@@ -34,7 +35,7 @@ public class HSSubscriber {
 
     private CCNHandle _handle = null;   
     private String _name = null;
-    private HashSet<String> _subSet = null;
+    private Set _subSet = null;
     private LinkedBlockingQueue<MsgItem> _lbq = null;
     private ArrayList<SubscribeThread> _threadList = null;
     private CCNReader _subReader = null;
@@ -44,7 +45,7 @@ public class HSSubscriber {
     public HSSubscriber(String name, CCNHandle handle){
         this._handle = handle;
         this._name = name;
-        this._subSet = new HashSet<String>();
+        this._subSet = Collections.synchronizedSet(new HashSet<String>());
         this._lbq = new LinkedBlockingQueue<MsgItem>();
         this._threadList = new ArrayList<SubscribeThread>();
         this._strValidator = new StrValidator();        

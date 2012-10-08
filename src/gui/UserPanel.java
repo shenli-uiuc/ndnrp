@@ -274,8 +274,8 @@ public class UserPanel extends JPanel{
             _lsRec.start();
             _ipRec.start();
 
-            _lsBotTh = new LSSubBotThread(_lsSub, _botConf.getNum());
-            _ipBotTh = new IPSubBotThread(_ipSub, _botConf.getNum());
+            _lsBotTh = new LSSubBotThread(_lsSub);
+            _ipBotTh = new IPSubBotThread(_ipSub);
             _lsBotTh.setDaemon(true);
             _ipBotTh.setDaemon(true);
             _lsBotTh.start();
@@ -310,7 +310,9 @@ public class UserPanel extends JPanel{
             String msg = null;
             while(true){
                 msg = _lsSub.receive();
-                _lsJTextArea.append(msg + "\n");
+                if(null != msg){
+                    _lsJTextArea.append(msg + "\n");
+                }
             }
         }
     }
@@ -320,7 +322,9 @@ public class UserPanel extends JPanel{
             String msg = null;
             while(true){
                 msg = _ipSub.receive();
-                _hsJTextArea.append(msg + "\n");
+                if(null != msg){
+                    _hsJTextArea.append(msg + "\n");
+                }
             }
         }
     }
@@ -328,26 +332,28 @@ public class UserPanel extends JPanel{
     //This thread automatically issue subscriptions 
     class LSSubBotThread extends Thread{
         private LSSubscriber _lss = null;
-        private int _botNum = 0;
 
-        public LSSubBotThread(LSSubscriber lss, int botNum){
+        public LSSubBotThread(LSSubscriber lss){
             this._lss = lss;
-            this._botNum = botNum;
         }
 
         public void run(){
             int i = 0;
+            int botNum = 0;
             String curName = null;
             try{
                 while(true){
-                    curName = BotConfig.NAME_PREFIX + i;
-                    if(_lss.isSubscribing(curName)){
-                        _lss.unsubscribeBot(curName);
+                    botNum = _botConf.getNum();
+                    if(botNum > 0){
+                        curName = BotConfig.NAME_PREFIX + i;
+                        if(_lss.isSubscribing(curName)){
+                            //_lss.unsubscribeBot(curName);
+                        }
+                        else{
+                            _lss.subscribeBot(curName);
+                        }
+                        i = (i + 1) % botNum;
                     }
-                    else{
-                        _lss.subscribeBot(curName);
-                    }
-                    i = (i + 1) % _botNum;
                     Thread.sleep(BotConfig.SUB_INTERVAL);
                 }   
             }
@@ -359,26 +365,28 @@ public class UserPanel extends JPanel{
 
     class IPSubBotThread extends Thread{
         private IPClient _ipc = null;
-        private int _botNum = 0;    
 
-        public IPSubBotThread(IPClient ipc, int botNum){
+        public IPSubBotThread(IPClient ipc){
             this._ipc = ipc;
-            this._botNum = botNum;
         }
 
         public void run(){
             int i = 0;
+            int botNum = 0;
             String curName = null;
             try{
                 while(true){
-                    curName = BotConfig.NAME_PREFIX + i;
-                    if(_ipc.isSubscribing(curName)){
-                        _ipc.unsubscribeBot(curName);
+                    botNum = _botConf.getNum();
+                    if(botNum > 0){
+                        curName = BotConfig.NAME_PREFIX + i;
+                        if(_ipc.isSubscribing(curName)){
+                            //_ipc.unsubscribeBot(curName);
+                        }
+                        else{
+                            _ipc.subscribeBot(curName);
+                        }
+                        i = (i + 1) % botNum;
                     }
-                    else{
-                        _ipc.subscribeBot(curName);
-                    }
-                    i = (i + 1) % _botNum;
                     Thread.sleep(BotConfig.SUB_INTERVAL);
                 }
             }

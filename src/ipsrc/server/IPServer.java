@@ -6,18 +6,19 @@ import ndnrp.util.*;
 import java.net.*;
 import java.io.*;
 import java.util.*;
+import java.util.Collections.*;
 
 public class IPServer{
 
     private String _url = null;
     private int _port = 0;    
-    private Hashtable<String, HashSet<String> > _followMap = null;
+    private Hashtable<String, Set > _followMap = null;
     private Hashtable<String, IPLiveUser> _userMap = null;
 
     public IPServer(String url, int port){
         this._url = url;
         this._port = port;
-        this._followMap = new Hashtable<String, HashSet<String> >();
+        this._followMap = new Hashtable<String, Set >();
         this._userMap = new Hashtable<String, IPLiveUser>();
     }
 
